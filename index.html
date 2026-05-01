@@ -1,0 +1,3433 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Do Chopp — Sistema de Gestão</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* Fallback se Google Fonts não carregar (arquivo local) */
+body { font-family: 'Barlow', 'Segoe UI', Arial, sans-serif; }
+</style>
+<style>
+:root {
+  --amber: #F5A623;
+  --amber-dark: #C47F0A;
+  --amber-light: #FFD580;
+  --black: #0D0D0D;
+  --dark: #1A1A1A;
+  --dark2: #252525;
+  --dark3: #2F2F2F;
+  --gray: #888;
+  --gray-light: #BDBDBD;
+  --white: #F5F0E8;
+  --cream: #FAF6EE;
+  --green: #4CAF50;
+  --red: #E53935;
+  --blue: #1E88E5;
+  --radius: 10px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Barlow', sans-serif;
+  background: var(--black);
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+  width: 220px;
+  min-height: 100vh;
+  background: var(--dark);
+  border-right: 1px solid #2A2A2A;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid #2A2A2A;
+}
+.logo-img { width: 120px; }
+.sidebar-nav { flex: 1; padding: 16px 0; overflow-y: auto; }
+.nav-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--gray);
+  text-transform: uppercase;
+  padding: 14px 20px 6px;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all .2s;
+  border-left: 3px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gray-light);
+}
+.nav-item:hover { background: var(--dark2); color: var(--white); }
+.nav-item.active {
+  background: rgba(245,166,35,.12);
+  border-left-color: var(--amber);
+  color: var(--amber);
+}
+.nav-item .icon { font-size: 16px; width: 20px; text-align: center; }
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid #2A2A2A;
+  font-size: 12px;
+  color: var(--gray);
+}
+
+/* MAIN */
+.main {
+  margin-left: 220px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.topbar {
+  background: var(--dark);
+  border-bottom: 1px solid #2A2A2A;
+  padding: 0 28px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+.topbar-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--white);
+}
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.btn {
+  padding: 8px 18px;
+  border-radius: 6px;
+  border: none;
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.btn-primary { background: var(--amber); color: var(--black); }
+.btn-primary:hover { background: var(--amber-dark); }
+.btn-ghost { background: transparent; color: var(--gray-light); border: 1px solid #3A3A3A; }
+.btn-ghost:hover { background: var(--dark2); color: var(--white); }
+.btn-danger { background: var(--red); color: white; }
+.btn-danger:hover { background: #C62828; }
+.btn-success { background: var(--green); color: white; }
+.btn-success:hover { background: #388E3C; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* CONTENT */
+.content { padding: 28px; flex: 1; }
+
+/* PANELS */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* CARDS */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.stat-card {
+  background: var(--dark);
+  border: 1px solid #2A2A2A;
+  border-radius: var(--radius);
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+}
+.stat-card.amber::before { background: var(--amber); }
+.stat-card.green::before { background: var(--green); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.red::before { background: var(--red); }
+.stat-label { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--gray); margin-bottom: 8px; }
+.stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 32px; color: var(--white); letter-spacing: 1px; }
+.stat-sub { font-size: 12px; color: var(--gray); margin-top: 4px; }
+
+/* TABLE */
+.table-card {
+  background: var(--dark);
+  border: 1px solid #2A2A2A;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+.table-header {
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #2A2A2A;
+}
+.table-header h3 { font-size: 15px; font-weight: 600; }
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--dark2);
+  border: 1px solid #3A3A3A;
+  border-radius: 6px;
+  padding: 6px 12px;
+}
+.search-box input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  width: 180px;
+}
+.search-box input::placeholder { color: var(--gray); }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  background: var(--dark2);
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+}
+tbody tr {
+  border-bottom: 1px solid #252525;
+  transition: background .15s;
+}
+tbody tr:hover { background: rgba(255,255,255,.03); }
+tbody tr:last-child { border-bottom: none; }
+td { padding: 12px 16px; font-size: 13px; }
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge-green { background: rgba(76,175,80,.15); color: var(--green); }
+.badge-amber { background: rgba(245,166,35,.15); color: var(--amber); }
+.badge-red { background: rgba(229,57,53,.15); color: var(--red); }
+.badge-blue { background: rgba(30,136,229,.15); color: var(--blue); }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75);
+  z-index: 999;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--dark);
+  border: 1px solid #333;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--shadow);
+}
+.modal-head {
+  padding: 20px 24px;
+  border-bottom: 1px solid #2A2A2A;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.modal-head h3 { font-size: 17px; font-weight: 700; }
+.modal-close {
+  background: none; border: none; color: var(--gray);
+  font-size: 20px; cursor: pointer; line-height: 1;
+}
+.modal-close:hover { color: var(--white); }
+.modal-body { padding: 24px; }
+.modal-foot {
+  padding: 16px 24px;
+  border-top: 1px solid #2A2A2A;
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+/* FORM */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid.cols3 { grid-template-columns: 1fr 1fr 1fr; }
+.form-grid.cols1 { grid-template-columns: 1fr; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field.span2 { grid-column: span 2; }
+.field.span3 { grid-column: span 3; }
+label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .8px; color: var(--gray); }
+input, select, textarea {
+  background: var(--dark2);
+  border: 1px solid #3A3A3A;
+  border-radius: 6px;
+  padding: 9px 12px;
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus, select:focus, textarea:focus { border-color: var(--amber); }
+select option { background: var(--dark2); }
+textarea { resize: vertical; min-height: 80px; }
+
+/* ORCAMENTO ITENS */
+.itens-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+.itens-table th {
+  background: var(--dark2);
+  padding: 8px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+  text-align: left;
+}
+.itens-table td { padding: 6px 10px; border-bottom: 1px solid #2A2A2A; }
+.itens-table td input, .itens-table td select {
+  background: var(--dark3);
+  border: 1px solid #3A3A3A;
+  border-radius: 4px;
+  padding: 5px 8px;
+  width: 100%;
+}
+.totais-box {
+  background: var(--dark2);
+  border: 1px solid #3A3A3A;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 240px;
+}
+.totais-row { display: flex; justify-content: space-between; font-size: 13px; }
+.totais-row.total { font-weight: 700; font-size: 16px; color: var(--amber); border-top: 1px solid #3A3A3A; padding-top: 8px; margin-top: 4px; }
+
+/* PRINT */
+.print-area { display: none; }
+
+/* FINANCIAL */
+.fin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.progress-bar { background: #2A2A2A; border-radius: 99px; height: 6px; margin-top: 6px; }
+.progress-fill { height: 100%; border-radius: 99px; background: var(--amber); }
+
+/* DASHBOARD CHARTS */
+.chart-box {
+  background: var(--dark);
+  border: 1px solid #2A2A2A;
+  border-radius: var(--radius);
+  padding: 20px;
+}
+.chart-title { font-size: 13px; font-weight: 600; color: var(--gray-light); margin-bottom: 16px; }
+.bar-chart { display: flex; align-items: flex-end; gap: 10px; height: 120px; }
+.bar-wrap { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; }
+.bar { width: 100%; background: var(--amber); border-radius: 4px 4px 0 0; transition: height .5s; }
+.bar-label { font-size: 10px; color: var(--gray); text-align: center; }
+
+/* SECTION DIVIDER */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(to right, var(--amber), transparent);
+  margin: 24px 0;
+  opacity: .4;
+}
+
+/* TABS */
+.tabs { display: flex; gap: 2px; margin-bottom: 20px; background: var(--dark); border-radius: 8px; padding: 4px; width: fit-content; }
+.tab {
+  padding: 7px 18px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--gray);
+  border: none;
+  background: none;
+  transition: all .2s;
+}
+.tab.active { background: var(--amber); color: var(--black); }
+.tab:hover:not(.active) { color: var(--white); background: var(--dark2); }
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  background: var(--dark2);
+  border: 1px solid var(--amber);
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--white);
+  z-index: 9999;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all .3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* SCROLLBAR */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--dark); }
+::-webkit-scrollbar-thumb { background: #444; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--amber); }
+
+/* RESPONSIVE adjustments */
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(2,1fr); }
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<!-- ══════════ LOGIN ══════════ -->
+<div id="loginScreen" style="
+  position:fixed;inset:0;z-index:9000;
+  background:radial-gradient(ellipse at 60% 40%,#1e0f00 0%,#0D0D0D 70%);
+  display:flex;align-items:center;justify-content:center;
+">
+  <div style="
+    background:#1A1A1A;border:1px solid #333;border-radius:16px;
+    padding:48px 40px;width:390px;box-shadow:0 4px 40px rgba(0,0,0,.7);
+    display:flex;flex-direction:column;align-items:center;gap:22px;
+  ">
+    <!-- Logo -->
+    <div style="display:flex;align-items:center;gap:12px">
+      <svg width="38" height="38" viewBox="0 0 38 38">
+        <rect width="38" height="38" rx="8" fill="#0D0D0D"/>
+        <rect x="9" y="7" width="14" height="22" rx="3" fill="#F5A623"/>
+        <rect x="11" y="5" width="10" height="6" rx="3" fill="white" opacity=".9"/>
+        <rect x="11" y="14" width="4" height="3" rx="1" fill="#0D0D0D" opacity=".35"/>
+        <rect x="11" y="19" width="4" height="3" rx="1" fill="#0D0D0D" opacity=".35"/>
+      </svg>
+      <div>
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:3px;color:#F5A623;line-height:1">DO CHOPP</div>
+        <div style="font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase">Sistema de Gestão</div>
+      </div>
+    </div>
+
+    <!-- Role pills -->
+    <div style="width:100%">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#888;margin-bottom:8px">Perfil de Acesso</div>
+      <div style="display:flex;gap:8px">
+        <div id="pillAdmin" onclick="selectRole('admin')" style="
+          flex:1;padding:9px;border-radius:6px;border:1px solid #F5A623;
+          background:rgba(245,166,35,.1);color:#F5A623;text-align:center;
+          cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;
+        ">👑 Admin</div>
+        <div id="pillOp" onclick="selectRole('operador')" style="
+          flex:1;padding:9px;border-radius:6px;border:1px solid #3A3A3A;
+          background:#252525;color:#888;text-align:center;
+          cursor:pointer;font-size:13px;font-weight:700;transition:all .2s;
+        ">👤 Operador</div>
+      </div>
+    </div>
+
+    <!-- Fields -->
+    <div style="width:100%;display:flex;flex-direction:column;gap:6px">
+      <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#888">Usuário</label>
+      <input id="loginUser" type="text" autocomplete="off" placeholder="Digite seu usuário"
+        style="background:#252525;border:1px solid #3A3A3A;border-radius:6px;padding:10px 13px;color:#F5F0E8;font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%"
+        onfocus="this.style.borderColor='#F5A623'" onblur="this.style.borderColor='#3A3A3A'">
+    </div>
+    <div style="width:100%;display:flex;flex-direction:column;gap:6px">
+      <label style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#888">Senha</label>
+      <div style="position:relative;width:100%">
+        <input id="loginPass" type="password" placeholder="••••••••"
+          style="background:#252525;border:1px solid #3A3A3A;border-radius:6px;padding:10px 40px 10px 13px;color:#F5F0E8;font-family:'Barlow',sans-serif;font-size:14px;outline:none;width:100%"
+          onfocus="this.style.borderColor='#F5A623'" onblur="this.style.borderColor='#3A3A3A'"
+          onkeydown="if(event.key==='Enter')doLogin()">
+        <button type="button" onclick="toggleSenha('loginPass','eyeLogin')"
+          style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:4px;display:flex;align-items:center;color:#888;"
+          title="Mostrar/ocultar senha">
+          <svg id="eyeLogin" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="loginErr" style="color:#E53935;font-size:12px;display:none;text-align:center">❌ Usuário ou senha incorretos</div>
+
+    <button onclick="doLogin()" style="
+      width:100%;padding:12px;background:#F5A623;color:#0D0D0D;
+      border:none;border-radius:8px;font-family:'Barlow',sans-serif;font-size:15px;
+      font-weight:700;cursor:pointer;letter-spacing:.5px;transition:background .2s;
+    " onmouseover="this.style.background='#C47F0A'" onmouseout="this.style.background='#F5A623'">Entrar</button>
+
+    <div style="font-size:11px;color:#444;text-align:center;line-height:1.8">
+      admin / <b style="color:#666">admin123</b> &nbsp;·&nbsp; operador / <b style="color:#666">op123</b>
+    </div>
+  </div>
+</div>
+
+<div id="app" style="display:none;width:100%;min-height:100vh;position:relative">
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="120" height="40" viewBox="0 0 120 40">
+      <rect width="120" height="40" rx="4" fill="#0D0D0D"/>
+      <!-- Beer mug icon simplified -->
+      <rect x="8" y="8" width="16" height="22" rx="3" fill="#F5A623"/>
+      <rect x="10" y="6" width="12" height="6" rx="3" fill="white" opacity=".9"/>
+      <rect x="10" y="14" width="4" height="4" rx="1" fill="#0D0D0D" opacity=".4"/>
+      <rect x="10" y="20" width="4" height="4" rx="1" fill="#0D0D0D" opacity=".4"/>
+      <text x="30" y="20" font-family="Bebas Neue, sans-serif" font-size="14" fill="#F5A623">DO</text>
+      <text x="30" y="32" font-family="Bebas Neue, sans-serif" font-size="14" fill="#F5F0E8">CHOPP</text>
+    </svg>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-label">Principal</div>
+    <div class="nav-item active" onclick="showPanel('dashboard', this)">
+      <span class="icon">📊</span> Dashboard
+    </div>
+    <div class="nav-label">Vendas</div>
+    <div class="nav-item" onclick="showPanel('orcamento', this)">
+      <span class="icon">📋</span> Orçamento
+    </div>
+    <div class="nav-item" onclick="showPanel('pedidos', this)">
+      <span class="icon">📦</span> Pedidos
+    </div>
+    <div class="nav-label">Cadastros</div>
+    <div class="nav-item" onclick="showPanel('clientes', this)">
+      <span class="icon">👥</span> Clientes
+    </div>
+    <div class="nav-item" onclick="showPanel('fornecedores', this)">
+      <span class="icon">🏭</span> Fornecedores
+    </div>
+    <div class="nav-item" onclick="showPanel('produtos', this)">
+      <span class="icon">🍺</span> Produtos
+    </div>
+    <div class="nav-item" onclick="showPanel('comodato', this)">
+      <span class="icon">🔧</span> Comodato
+    </div>
+    <div class="nav-label">Financeiro</div>
+    <div class="nav-item admin-only" onclick="showPanel('financeiro', this)">
+      <span class="icon">💰</span> Financeiro
+    </div>
+    <div class="nav-item admin-only" onclick="showPanel('gastos', this)">
+      <span class="icon">📉</span> Gastos Fixos
+    </div>
+  </nav>
+  <div class="sidebar-footer" style="flex-direction:column;gap:8px;align-items:flex-start"><div style="display:flex;align-items:center;justify-content:space-between;width:100%"><span id="sidebarUser" style="font-size:12px;color:#888">—</span><span id="sidebarRoleBadge" style="font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(245,166,35,.15);color:#F5A623">Admin</span></div><button onclick="doLogout()" style="background:none;border:1px solid #333;border-radius:5px;color:#888;padding:4px 10px;font-size:11px;cursor:pointer;width:100%;font-family:Barlow,sans-serif" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#888'">🚪 Sair</button></div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <span style="font-size:12px;color:var(--gray)">📅 <span id="currentDate"></span></span>
+      <button class="btn btn-primary" id="topbarBtn" onclick="handleTopbarAction()">+ Novo</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="stats-grid">
+        <div class="stat-card amber">
+          <div class="stat-label">Orçamentos Mês</div>
+          <div class="stat-value" id="stat-orc">12</div>
+          <div class="stat-sub">↑ 3 este mês</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Pedidos Entregues</div>
+          <div class="stat-value" id="stat-ped">8</div>
+          <div class="stat-sub">↑ 2 esta semana</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Clientes Ativos</div>
+          <div class="stat-value" id="stat-cli">11</div>
+          <div class="stat-sub">Bares + Festas</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Comodatos Ativos</div>
+          <div class="stat-value" id="stat-com">6</div>
+          <div class="stat-sub">Equipamentos fora</div>
+        </div>
+      </div>
+      <!-- Segunda linha de cards -->
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px">
+        <div class="stat-card amber">
+          <div class="stat-label">Barris em Estoque</div>
+          <div class="stat-value" id="stat-barris">—</div>
+          <div class="stat-sub">unidades disponíveis</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Barris Reservados</div>
+          <div class="stat-value" id="stat-reservados">0</div>
+          <div class="stat-sub">pedidos futuros</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-label">Pedidos em Aberto</div>
+          <div class="stat-value" id="stat-abertos">0</div>
+          <div class="stat-sub">aguardando pagto</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Contas a Vencer</div>
+          <div class="stat-value" id="stat-vencer">0</div>
+          <div class="stat-sub" id="stat-vencer-sub">próximos 2 dias</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+        <div class="chart-box">
+          <div class="chart-title">📊 Vendas por Produto (Barris)</div>
+          <div class="bar-chart" id="barChart"></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-title">💰 Últimos Orçamentos</div>
+          <div id="dashRecentOrc"></div>
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-header">
+          <h3>🍺 Comodatos Ativos</h3>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Cliente</th><th>Equipamento</th><th>Valor</th><th>Entrada</th>
+          </tr></thead>
+          <tbody id="dashComodatos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ORÇAMENTO -->
+    <div class="panel" id="panel-orcamento">
+      <div style="display:flex;gap:10px;margin-bottom:20px;align-items:center">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('orc','lista', this)">Lista</button>
+          <button class="tab" onclick="switchTab('orc','historico', this)">Histórico</button>
+        </div>
+      </div>
+
+      <div class="tab-content active" id="orc-lista">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Orçamentos</h3>
+            <div style="display:flex;gap:10px">
+              <div class="search-box">
+                <span>🔍</span>
+                <input type="text" placeholder="Buscar..." oninput="filterTable('orcTable', this.value)">
+              </div>
+            </div>
+          </div>
+          <table id="orcTable">
+            <thead><tr>
+              <th>Nº</th><th>Cliente</th><th>Data</th><th>Válido Até</th><th>Total</th><th>Itens</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="orcTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" id="orc-historico">
+        <div class="table-card">
+          <div class="table-header"><h3>Histórico de Orçamentos</h3></div>
+          <table>
+            <thead><tr>
+              <th>Nº Orç.</th><th>Cliente</th><th>Data</th><th>Produto</th><th>Qtde</th><th>Valor Unit.</th><th>Total Item</th>
+            </tr></thead>
+            <tbody id="histOrcBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PEDIDOS -->
+    <div class="panel" id="panel-pedidos">
+      <div class="table-card">
+        <div class="table-header">
+          <h3>Pedidos de Venda</h3>
+          <div class="search-box">
+            <span>🔍</span>
+            <input type="text" placeholder="Buscar..." oninput="filterTable('pedTable', this.value)">
+          </div>
+        </div>
+        <table id="pedTable">
+          <thead><tr>
+            <th>Nº Pedido</th><th>Cliente</th><th>Emissão</th><th>Entrega</th><th>Total</th><th>Pagto</th><th>Status</th><th>Ações</th>
+          </tr></thead>
+          <tbody id="pedTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CLIENTES -->
+    <div class="panel" id="panel-clientes">
+      <div style="display:flex;gap:10px;margin-bottom:20px">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('cli','festa', this)">Festas</button>
+          <button class="tab" onclick="switchTab('cli','bares', this)">Bares</button>
+        </div>
+      </div>
+
+      <div class="tab-content active" id="cli-festa">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Clientes — Festas</h3>
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" placeholder="Buscar..." oninput="filterTable('cliFestaTable', this.value)">
+            </div>
+          </div>
+          <table id="cliFestaTable">
+            <thead><tr>
+              <th>ID</th><th>Nome</th><th>CPF/CNPJ</th><th>Cidade</th><th>Telefone</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="cliFestaBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="tab-content" id="cli-bares">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Clientes — Bares</h3>
+            <div class="search-box">
+              <span>🔍</span>
+              <input type="text" placeholder="Buscar..." oninput="filterTable('cliBaresTable', this.value)">
+            </div>
+          </div>
+          <table id="cliBaresTable">
+            <thead><tr>
+              <th>Cód</th><th>Nome Fantasia</th><th>Responsável</th><th>Contato</th><th>Forma Pgto</th><th>Vendedor</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="cliBaresBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FORNECEDORES -->
+    <div class="panel" id="panel-fornecedores">
+      <div class="tabs" style="margin-bottom:16px">
+        <button class="tab active" onclick="switchTab('forn','cadastro',this)">Cadastro</button>
+        <button class="tab" onclick="switchTab('forn','produtos',this)">Produtos / Preços</button>
+      </div>
+
+      <!-- Cadastro de fornecedores -->
+      <div class="tab-content active" id="forn-cadastro">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Fornecedores</h3>
+            <div style="display:flex;gap:8px;align-items:center">
+              <div class="search-box"><span>🔍</span><input type="text" placeholder="Buscar..." oninput="filterTable('fornCadTable',this.value)"></div>
+              <button class="btn btn-primary btn-sm" onclick="openModalNovoForn()">+ Novo Fornecedor</button>
+            </div>
+          </div>
+          <table id="fornCadTable">
+            <thead><tr><th>Fornecedor</th><th>Contato</th><th>Telefone</th><th>Endereço</th><th>Forma Pgto</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="fornCadBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Produtos / preços -->
+      <div class="tab-content" id="forn-produtos">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Produtos por Fornecedor</h3>
+            <div class="search-box"><span>🔍</span><input type="text" placeholder="Buscar..." oninput="filterTable('fornTable',this.value)"></div>
+          </div>
+          <table id="fornTable">
+            <thead><tr><th>Fornecedor</th><th>Cód</th><th>Produto</th><th>Litros</th><th>R$/Litro</th><th>R$/Barril</th><th>Forma Pgto</th></tr></thead>
+            <tbody id="fornBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUTOS -->
+    <div class="panel" id="panel-produtos">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('prod','festa', this)">Tabela Festa</button>
+          <button class="tab" onclick="switchTab('prod','bar', this)">Tabela Bar</button>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="openModalNovoProd()">+ Novo Produto</button>
+          <button class="btn btn-danger btn-sm" onclick="limparProdutos()">🗑️ Limpar Tudo</button>
+        </div>
+      </div>
+      <div class="tab-content active" id="prod-festa">
+        <div class="table-card">
+          <div class="table-header"><h3>Tabela de Preços — Festa</h3></div>
+          <table>
+            <thead><tr><th>Cód</th><th>Produto</th><th>Litros</th><th>Estoque</th><th>Preço de Venda</th><th>Custo Barril</th><th>Margem</th><th>Ações</th></tr></thead>
+            <tbody id="prodFestaBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="tab-content" id="prod-bar">
+        <div class="table-card">
+          <div class="table-header"><h3>Tabela de Preços — Bar</h3></div>
+          <table>
+            <thead><tr><th>Cód</th><th>Produto</th><th>Litros</th><th>Estoque</th><th>Preço de Venda</th><th>Custo Barril</th><th>Margem</th><th>Ações</th></tr></thead>
+            <tbody id="prodBarBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMODATO -->
+    <div class="panel" id="panel-comodato">
+      <!-- Cards resumo -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px">
+        <div class="stat-card blue">
+          <div class="stat-label">Equipamentos na Rua</div>
+          <div class="stat-value" id="comodNaRua">0</div>
+          <div class="stat-sub">unidades com clientes</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">Em Estoque</div>
+          <div class="stat-value" id="comodNoEstoque">0</div>
+          <div class="stat-sub">unidades disponíveis</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Valor Total na Rua</div>
+          <div class="stat-value" id="comodValorRua" style="font-size:20px">R$ 0</div>
+          <div class="stat-sub">em comodato ativo</div>
+        </div>
+      </div>
+
+      <div class="tabs" style="margin-bottom:16px">
+        <button class="tab active" onclick="switchTab('comod','ativos',this)">Na Rua (Clientes)</button>
+        <button class="tab" onclick="switchTab('comod','estoque',this)">Estoque</button>
+        <button class="tab" onclick="switchTab('comod','historico',this)">Histórico</button>
+      </div>
+
+      <!-- Tab: Na Rua -->
+      <div class="tab-content active" id="comod-ativos">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>🔧 Comodatos Ativos — Na Rua</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModalNovoComod()">+ Novo Comodato</button>
+          </div>
+          <table>
+            <thead><tr><th>Cliente</th><th>Kit / Equipamento</th><th>Saída</th><th>Valor</th><th>Status</th><th>Ações</th></tr></thead>
+            <tbody id="comodAtivoBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Estoque -->
+      <div class="tab-content" id="comod-estoque">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>📦 Estoque de Equipamentos</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModalNovoEquip()">+ Novo Equipamento</button>
+          </div>
+          <table>
+            <thead><tr><th>Equipamento</th><th>Qtde Total</th><th>Na Rua</th><th>Disponível</th><th>Valor Unit.</th><th>Ações</th></tr></thead>
+            <tbody id="comodEstoqueBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab: Histórico -->
+      <div class="tab-content" id="comod-historico">
+        <div class="table-card">
+          <div class="table-header"><h3>📋 Histórico de Recolhimentos</h3></div>
+          <table>
+            <thead><tr><th>Cliente</th><th>Equipamento</th><th>Data Saída</th><th>Data Retorno</th><th>Tipo</th><th>Quem Recolheu</th></tr></thead>
+            <tbody id="comodHistBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINANCEIRO -->
+    <div class="panel" id="panel-financeiro">
+      <div class="stats-grid" style="grid-template-columns:1fr 1fr 1fr">
+        <div class="stat-card green">
+          <div class="stat-label">Total a Receber</div>
+          <div class="stat-value">R$ 0</div>
+          <div class="stat-sub">Orçamentos aprovados</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">Total a Pagar</div>
+          <div class="stat-value" id="totalPagar">R$ 0</div>
+          <div class="stat-sub">Gastos fixos + variáveis</div>
+        </div>
+        <div class="stat-card amber">
+          <div class="stat-label">Resultado Estimado</div>
+          <div class="stat-value">—</div>
+          <div class="stat-sub">Mês atual</div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:60px;color:var(--gray);font-size:14px">
+        💰 Módulo financeiro em desenvolvimento.<br>
+        <span style="font-size:12px">Cadastre as contas a pagar e receber para visualizar o fluxo de caixa.</span>
+      </div>
+    </div>
+
+    <!-- GASTOS -->
+    <div class="panel" id="panel-gastos">
+      <div style="display:grid;grid-template-columns:3fr 1fr;gap:20px">
+        <div class="table-card">
+          <div class="table-header">
+            <h3>Gastos Fixos e Variáveis</h3>
+            <button class="btn btn-primary btn-sm" onclick="openModal('modalGasto');editingGastoIdx=null;document.getElementById('modalGastoTitle').textContent='Novo Gasto';['gastoItem','gastoPgto','gastoVcto'].forEach(id=>document.getElementById(id).value='');document.getElementById('gastoValor').value=0;">+ Novo Gasto</button>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>Tipo</th><th>Valor</th><th>Forma Pgto</th><th>Dia Vcto</th><th>Próximo Vcto</th><th>% Total</th><th>Ações</th></tr></thead>
+            <tbody id="gastosBody"></tbody>
+          </table>
+        </div>
+        <div>
+          <div class="stat-card amber" style="margin-bottom:16px">
+            <div class="stat-label">Total Fixo</div>
+            <div class="stat-value" id="totalFixo">R$ 0</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Total Variável</div>
+            <div class="stat-value" id="totalVar">R$ 0</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+</div>
+
+<!-- MODAL ORÇAMENTO -->
+<div class="modal-overlay" id="modalOrc">
+  <div class="modal" style="max-width:860px">
+    <div class="modal-head">
+      <h3 id="modalOrcTitle">Novo Orçamento</h3>
+      <button class="modal-close" onclick="closeModal('modalOrc')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" style="margin-bottom:16px">
+        <div class="field">
+          <label>Tipo de Cliente</label>
+          <select id="orcTipoCliente" onchange="updateClienteSelect()">
+            <option value="festa">Festa</option>
+            <option value="bar">Bar</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cliente</label>
+          <select id="orcCliente" onchange="preencherCliente()"></select>
+        </div>
+        <div class="field">
+          <label>Data Emissão</label>
+          <input type="date" id="orcDataEmissao">
+        </div>
+        <div class="field">
+          <label>Válido Até</label>
+          <input type="date" id="orcValidoAte">
+        </div>
+      </div>
+
+      <div class="form-grid cols1" style="margin-bottom:16px">
+        <div class="field">
+          <label>Cliente Info</label>
+          <input type="text" id="orcClienteInfo" readonly style="color:var(--gray)">
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <label style="font-size:13px;font-weight:700;color:var(--gray-light)">ITENS DO PEDIDO</label>
+        <button class="btn btn-ghost btn-sm" onclick="addItemOrc()">+ Item</button>
+      </div>
+      <table class="itens-table">
+        <thead><tr>
+          <th>#</th><th style="width:40%">Produto</th><th>Qtde</th><th>Preço Unit.</th><th>Desc %</th><th>Total</th><th></th>
+        </tr></thead>
+        <tbody id="orcItens"></tbody>
+      </table>
+
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:20px">
+        <div class="form-grid" style="flex:1">
+          <div class="field">
+            <label>Frete (R$)</label>
+            <input type="number" id="orcFrete" value="0" oninput="calcOrcTotal()">
+          </div>
+          <div class="field">
+            <label>Desconto Global %</label>
+            <input type="number" id="orcDescGlobal" value="0" oninput="calcOrcTotal()">
+          </div>
+          <div class="field span2">
+            <label>Observações de Entrega</label>
+            <textarea id="orcObs" rows="2"></textarea>
+          </div>
+        </div>
+        <div class="totais-box">
+          <div class="totais-row"><span>Subtotal:</span><span id="orcSubtotal">R$ 0,00</span></div>
+          <div class="totais-row"><span>Desconto:</span><span id="orcDescontoVal">R$ 0,00</span></div>
+          <div class="totais-row"><span>Frete:</span><span id="orcFreteVal">R$ 0,00</span></div>
+          <div class="totais-row total"><span>TOTAL:</span><span id="orcTotal">R$ 0,00</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalOrc')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="printOrc()">🖨️ Imprimir</button>
+      <button class="btn btn-primary" onclick="saveOrc()">💾 Salvar Orçamento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL PEDIDO -->
+<div class="modal-overlay" id="modalPed">
+  <div class="modal" style="max-width:860px">
+    <div class="modal-head">
+      <h3>Novo Pedido de Venda</h3>
+      <button class="modal-close" onclick="closeModal('modalPed')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field">
+          <label>Tipo de Cliente</label>
+          <select id="pedTipoCliente" onchange="updatePedClienteSelect()">
+            <option value="bar">Bar</option>
+            <option value="festa">Festa</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Cliente</label>
+          <select id="pedCliente" onchange="preencherClientePed()"></select>
+        </div>
+        <div class="field">
+          <label>Data Emissão</label>
+          <input type="date" id="pedDataEmissao">
+        </div>
+        <div class="field">
+          <label>Data Entrega</label>
+          <input type="date" id="pedDataEntrega">
+        </div>
+        <div class="field">
+          <label>Vendedor</label>
+          <input type="text" id="pedVendedor" value="DANIEL">
+        </div>
+        <div class="field">
+          <label>Forma de Pagamento</label>
+          <input type="text" id="pedPagto">
+        </div>
+        <div class="field">
+          <label>Endereço Entrega</label>
+          <input type="text" id="pedEndEntrega">
+        </div>
+        <div class="field">
+          <label>Período Entrega</label>
+          <input type="text" id="pedPeriodo" placeholder="Ex: Manhã (até 12h)">
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px">
+        <label style="font-size:13px;font-weight:700;color:var(--gray-light)">ITENS</label>
+        <button class="btn btn-ghost btn-sm" onclick="addItemPed()">+ Item</button>
+      </div>
+      <table class="itens-table">
+        <thead><tr><th>#</th><th style="width:40%">Produto</th><th>Qtde</th><th>Preço Unit.</th><th>Desc %</th><th>Total</th><th></th></tr></thead>
+        <tbody id="pedItens"></tbody>
+      </table>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px;gap:20px">
+        <div class="form-grid" style="flex:1">
+          <div class="field"><label>Frete (R$)</label><input type="number" id="pedFrete" value="0" oninput="calcPedTotal()"></div>
+          <div class="field"><label>Obs Internas</label><textarea id="pedObsInt" rows="2"></textarea></div>
+        </div>
+        <div class="totais-box">
+          <div class="totais-row"><span>Subtotal:</span><span id="pedSubtotal">R$ 0,00</span></div>
+          <div class="totais-row"><span>Frete:</span><span id="pedFreteVal">R$ 0,00</span></div>
+          <div class="totais-row total"><span>TOTAL:</span><span id="pedTotal">R$ 0,00</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalPed')">Cancelar</button>
+      <button class="btn btn-ghost" onclick="printPed()">🖨️ Imprimir</button>
+      <button class="btn btn-primary" onclick="savePed()">💾 Salvar Pedido</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE FESTA -->
+<div class="modal-overlay" id="modalCliFesta">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalCliFestaTitle">Novo Cliente — Festa</h3>
+      <button class="modal-close" onclick="closeModal('modalCliFesta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>CPF/CNPJ</label><input type="text" id="cfNome"></div>
+        <div class="field"><label>Nome</label><input type="text" id="cfCliente"></div>
+        <div class="field"><label>Endereço</label><input type="text" id="cfEndereco"></div>
+        <div class="field"><label>Número</label><input type="text" id="cfNumero"></div>
+        <div class="field"><label>CEP</label><input type="text" id="cfCep"></div>
+        <div class="field"><label>Bairro</label><input type="text" id="cfBairro"></div>
+        <div class="field"><label>Cidade</label><input type="text" id="cfCidade"></div>
+        <div class="field"><label>Telefone</label><input type="text" id="cfTelefone"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalCliFesta')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCliFesta()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CLIENTE BAR -->
+<div class="modal-overlay" id="modalCliBar">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Novo Cliente — Bar</h3>
+      <button class="modal-close" onclick="closeModal('modalCliBar')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Segmento</label><input type="text" id="cbSegmento" value="BAR"></div>
+        <div class="field"><label>CNPJ/CPF</label><input type="text" id="cbCnpj"></div>
+        <div class="field"><label>Nome Fantasia</label><input type="text" id="cbNome"></div>
+        <div class="field"><label>Responsável</label><input type="text" id="cbResp"></div>
+        <div class="field"><label>Contato</label><input type="text" id="cbContato"></div>
+        <div class="field"><label>Email</label><input type="text" id="cbEmail"></div>
+        <div class="field"><label>Vendedor</label><input type="text" id="cbVendedor" value="DANIEL"></div>
+        <div class="field"><label>Forma Pgto</label><input type="text" id="cbPagto"></div>
+        <div class="field span2"><label>Observações</label><textarea id="cbObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalCliBar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveCliBar()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ <span id="toastMsg">Salvo com sucesso!</span></div>
+
+<!-- PRINT TEMPLATE -->
+<div class="print-area" id="printArea"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA STORE
+// ─────────────────────────────────────────────
+const DB = {
+  clientes_festa: [
+    {id:8, cpf:'258.406.523-65', cliente:'Ronaldo Badona', endereco:'Rua Atlatida', numero:'120', cep:'03478-506', bairro:'Vila Olimpia', cidade:'São Paulo', telefone:'(11) 96854-7852'},
+    {id:9, cpf:'202.013.206-54', cliente:'Rhuan Mathias', endereco:'Rua Isaac Tabacow', numero:'145', cep:'04856-032', bairro:'Vila Granada', cidade:'São Paulo', telefone:'(11) 95874-1256'},
+    {id:10, cpf:'265.410.025-89', cliente:'Sérgio Orvat', endereco:'Rua Manoel Gildo Forte', numero:'54', cep:'03740-503', bairro:'Vila Antonieta', cidade:'São Paulo', telefone:'(11) 95874-5632'},
+    {id:11, cpf:'250.478.987-45', cliente:'Alisson Moura', endereco:'Rua Itinguçu', numero:'212', cep:'03547-809', bairro:'Vila Granada', cidade:'São Paulo', telefone:'(11) 95874-5896'},
+    {id:13, cpf:'258.410.105-65', cliente:'Orlando Siqueira', endereco:'Rua Silva Bueno', numero:'235', cep:'03547-809', bairro:'Jd Itápolis', cidade:'São Paulo', telefone:'(11) 95240-6231'},
+    {id:15, cpf:'250.666.333-25', cliente:'Antono Carlos', endereco:'Rua Mafalda', numero:'444', cep:'03541-023', bairro:'Vila Cisper', cidade:'Guarulhos', telefone:'(11) 95487-0236'},
+    {id:16, cpf:'250.777.888-98', cliente:'Marco Aurélio', endereco:'Rua Conselheiro Carrão', numero:'2222', cep:'03476-050', bairro:'Vila Carrão', cidade:'São Paulo', telefone:'(11) 98354-6012'},
+  ],
+  clientes_bares: [
+    {cod:1, seg:'BAR', cnpj:'49.279.437/0001-03', nome:'ESTAÇÃO GRANADA', resp:'RAFAEL RENATO', contato:'11 971735923', email:'coxinhaburguer@gmail.com', vendedor:'DANIEL', pagto:'BOLETO 7 DIAS', obs:'ENTREGAR APÓS AS 10H'},
+    {cod:2, seg:'BAR', cnpj:'53.389.024/001-40', nome:'CHURRAS PENHA', resp:'CLAUDIO', contato:'11 97338048', email:'', vendedor:'DANIEL', pagto:'BOLETO 7 DIAS', obs:''},
+    {cod:3, seg:'BAR', cnpj:'42.959.616/0001-34', nome:'CHURRAS SANTO ANDRE', resp:'FERNANDO E FELIPE', contato:'11 46761507', email:'churras.campestre@gmail.com', vendedor:'DANIEL', pagto:'BOLETO 7 DIAS', obs:''},
+    {cod:4, seg:'BAR', cnpj:'30.202.231/0001-49', nome:'JIM JONES PUB', resp:'ALEMAO', contato:'11 952186189', email:'jimjonespub@hotmail.co', vendedor:'DANIEL', pagto:'BOLETO 10 DIAS', obs:''},
+    {cod:5, seg:'BAR', cnpj:'57.749.470/0001-70', nome:'KS PASTEL', resp:'RUT', contato:'11 997064685', email:'marlucegerentegeralparadaks@gmail.com', vendedor:'DANIEL', pagto:'BOLETO 7 DIAS', obs:''},
+    {cod:6, seg:'BAR', cnpj:'23.756.637/001-08', nome:'MENNU GRILL', resp:'ALEX', contato:'11 940711011', email:'alex@portofide.com.br', vendedor:'DANIEL', pagto:'BOLETO 10 DIAS', obs:''},
+    {cod:7, seg:'BAR', cnpj:'52.754.134/0001-00', nome:'MUNDO ANIMAL PENHA', resp:'KAWA', contato:'11 941704072', email:'mundoanimal.penha.sp@gmail.com', vendedor:'DANIEL', pagto:'PIX AVISTA', obs:''},
+    {cod:8, seg:'BAR', cnpj:'01.508.264/0001-13', nome:'NA BRASA', resp:'WILLIAN', contato:'11 940367466', email:'', vendedor:'DANIEL', pagto:'PIX 07 DIAS', obs:''},
+    {cod:9, seg:'BAR', cnpj:'', nome:'PESQUEIRO TOA TOA', resp:'WILLIAN', contato:'11 992745335', email:'', vendedor:'DANIEL', pagto:'PIX 07 DIAS', obs:''},
+    {cod:10, seg:'BAR', cnpj:'35.073.065/0001-41', nome:'ST JONNHES IRIS PUB', resp:'DOUGLAS VINICIUS', contato:'11 945921506', email:'financeiro@stjohns.com.br', vendedor:'DANIEL', pagto:'BOLETO 07 DIAS', obs:''},
+  ],
+  fornecedores: [
+    {forn:'CERVEJARIA DALLA', cod:1, produto:'BARRIL DE CHOPP 30L DALLA', litros:30, vlitro:5.3, vbarril:159, pgto:'PIX'},
+    {forn:'CERVEJARIA DALLA', cod:2, produto:'BARRIL DE CHOPP 50L DALLA', litros:50, vlitro:5.3, vbarril:265, pgto:'PIX'},
+    {forn:'CERVEJARIA BRASSER', cod:3, produto:'BARRIL DE CHOPP 30L BRASSER', litros:30, vlitro:5.3, vbarril:159, pgto:'PIX'},
+    {forn:'CERVEJARIA BRASSER', cod:4, produto:'BARRIL DE CHOPP 50L BRASSER', litros:50, vlitro:5.3, vbarril:265, pgto:'PIX'},
+    {forn:'CERVEJARIA BRASSER', cod:'', produto:'BARRIL DE CHOPP 30L BRASSER IPA', litros:30, vlitro:7.9, vbarril:237, pgto:'PIX'},
+    {forn:'CERVEJARIA BRASSER', cod:'', produto:'BARRIL DE CHOPP 50L BRASSER IPA', litros:50, vlitro:7.9, vbarril:395, pgto:'PIX'},
+    {forn:'CHOPP FEST', cod:5, produto:'BARRIL DE CHOPP 30L HEINEKEN', litros:30, vlitro:14.48, vbarril:434.4, pgto:'BOLETO 10'},
+    {forn:'CHOPP FEST', cod:6, produto:'BARRIL DE CHOPP 50L HEINEKEN', litros:50, vlitro:14.48, vbarril:724, pgto:'BOLETO 10'},
+    {forn:'CHOPP FEST', cod:7, produto:'BARRIL DE CHOPP 30L AMSTEL', litros:30, vlitro:11, vbarril:330, pgto:'BOLETO 10'},
+    {forn:'CHOPP FEST', cod:8, produto:'BARRIL DE CHOPP 50L AMSTEL', litros:50, vlitro:11, vbarril:550, pgto:'BOLETO 10'},
+    {forn:'AMBV', cod:9, produto:'BARRIL DE CHOPP 30L BRAHMA', litros:30, vlitro:12, vbarril:360, pgto:'PIX'},
+    {forn:'AMBV', cod:10, produto:'BARRIL DE CHOPP 50L BRAHMA', litros:50, vlitro:12, vbarril:600, pgto:'PIX'},
+    {forn:'QUINKAS', cod:11, produto:'BARRIL DE CHOPP 30L VINHO', litros:30, vlitro:8.75, vbarril:262.5, pgto:'BOLETO 14'},
+    {forn:'QUINKAS', cod:12, produto:'BARRIL DE CHOPP 30L SESSION IPA', litros:30, vlitro:9, vbarril:270, pgto:'BOLETO 14'},
+  ],
+  produtos_festa: [
+    {cod:1, prod:'BARRIL CHOPP 30L DALLA', litros:30, venda:375, custo:159},
+    {cod:2, prod:'BARRIL CHOPP 50L DALLA', litros:50, venda:600, custo:265},
+    {cod:3, prod:'BARRIL CHOPP 30L BRASSER', litros:30, venda:375, custo:159},
+    {cod:4, prod:'BARRIL CHOPP 50L BRASSER', litros:50, venda:600, custo:265},
+    {cod:5, prod:'BARRIL CHOPP 30L HEINEKEN', litros:30, venda:750, custo:434.4},
+    {cod:6, prod:'BARRIL CHOPP 50L HEINEKEN', litros:50, venda:1100, custo:724},
+    {cod:7, prod:'BARRIL CHOPP 30L AMSTEL', litros:30, venda:950, custo:330},
+    {cod:8, prod:'BARRIL CHOPP 50L AMSTEL', litros:50, venda:585, custo:550},
+    {cod:9, prod:'BARRIL CHOPP 30L BRAHMA', litros:30, venda:1050, custo:360},
+    {cod:10, prod:'BARRIL CHOPP 50L BRAHMA', litros:50, venda:650, custo:600},
+    {cod:11, prod:'BARRIL CHOPP 30L VINHO', litros:30, venda:480, custo:262.5},
+    {cod:12, prod:'BARRIL CHOPP 30L ESCURO', litros:30, venda:420, custo:159},
+    {cod:13, prod:'BARRIL CHOPP 30L IPA', litros:30, venda:510, custo:237},
+    {cod:14, prod:'BARRIL CHOPP 50L IPA', litros:50, venda:850, custo:395},
+    {cod:15, prod:'BARRIL CHOPP 30L SESSION IPA', litros:30, venda:510, custo:270},
+  ],
+  produtos_bar: [
+    {cod:1, prod:'BARRIL CHOPP 30L DALLA', litros:30, venda:360, custo:159},
+    {cod:2, prod:'BARRIL CHOPP 50L DALLA', litros:50, venda:575, custo:265},
+    {cod:3, prod:'BARRIL CHOPP 30L BRASSER', litros:30, venda:360, custo:159},
+    {cod:4, prod:'BARRIL CHOPP 50L BRASSER', litros:50, venda:575, custo:265},
+    {cod:5, prod:'BARRIL CHOPP 30L HEINEKEN', litros:30, venda:540, custo:434.4},
+    {cod:6, prod:'BARRIL CHOPP 50L HEINEKEN', litros:50, venda:900, custo:724},
+    {cod:7, prod:'BARRIL CHOPP 30L AMSTEL', litros:30, venda:510, custo:330},
+    {cod:8, prod:'BARRIL CHOPP 50L AMSTEL', litros:50, venda:800, custo:550},
+    {cod:9, prod:'BARRIL CHOPP 30L BRAHMA', litros:30, venda:495, custo:360},
+    {cod:10, prod:'BARRIL CHOPP 50L BRAHMA', litros:50, venda:800, custo:600},
+    {cod:11, prod:'BARRIL CHOPP 30L VINHO', litros:30, venda:480, custo:262.5},
+    {cod:12, prod:'BARRIL CHOPP 30L ESCURO', litros:30, venda:420, custo:159},
+    {cod:13, prod:'BARRIL CHOPP 30L IPA', litros:30, venda:510, custo:237},
+    {cod:14, prod:'BARRIL CHOPP 50L IPA', litros:50, venda:850, custo:395},
+    {cod:15, prod:'BARRIL CHOPP 30L SESSION IPA', litros:30, venda:510, custo:270},
+  ],
+  comodatos_ativos: [
+    {cliente:'ESTAÇÃO GRANADA', kit:'KIT CHOPEIRA EXPANSÃO 90HS 220V / 02 TORNEIRAS ITALIANA / 01 MANOMETRO / 01 BANDEJA INOX / 02 EXTRATORA / 01 GAS', valor:6930},
+    {cliente:'CHURRAS SANTO ANDRE', kit:'KIT CHOPEIRA EXPANSÃO 90HS 220V / 02 TORNEIRAS ITALIANA / 01 MANOMETRO / 01 BANDEJA INOX / 02 EXTRATORA', valor:6530},
+    {cliente:'JIM JONES PUB', kit:'KIT 2 CHOPEIRA TORRE / 02 TORNEIRAS ITALIANA / 01 MANOMETRO / 01 BANDEJA INOX / 02 EXTRATORA / 01 PRE-RESFRIADOR', valor:7800},
+    {cliente:'KS PASTEL', kit:'KIT 2 CHOPEIRA SLIM / 04 TORNEIRAS ITALIANA / 01 MANOMETRO 02 SAIDA / 02 BANDEJA INOX / 04 EXTRATORA / 01 PRE-RESFRIADOR', valor:9800},
+    {cliente:'MENNU GRILL', kit:'KIT CHOPEIRA EXPANSÃO 60HS 220V / 01 TORNEIRA ITALIANA / 02 MANOMETRO / 01 BANDEJA PLÁSTICO / 03 EXTRATORA', valor:4100},
+    {cliente:'PESQUEIRO TOA TOA', kit:'KIT CHOPEIRA EXPANSÃO OVAL 90HS 220V / 02 TORNEIRAS ITALIANA / 01 MANOMETRO / 01 BANDEJA INOX / 02 EXTRATORA / 01 GAS', valor:6500},
+  ],
+  comodatos_estoque: [
+    {item:'BARRIL 30L SEM MARCA VAZIO', valor:450}, {item:'BARRIL 50L SEM MARCA VAZIO', valor:550},
+    {item:'BARRIL 30L HEINEKEN VAZIO', valor:450}, {item:'BARRIL 50L HEINEKEN VAZIO', valor:550},
+    {item:'BARRIL 30L BRAHMA VAZIO', valor:450}, {item:'BARRIL 50L BRAHMA VAZIO', valor:550},
+    {item:'CHOPEIRA EXPANSÃO 30HS 1 TORNEIRA 110V', valor:3000},
+    {item:'CHOPEIRA EXPANSÃO BRAHMA 60HS 1 TORNEIRA 110V', valor:4000},
+    {item:'CHOPEIRA EXPANSÃO 90HS 2 TORNEIRAS 220V', valor:5500},
+    {item:'CHOPEIRA EXPANSÃO OVAL 90HS 2 TORNEIRAS 220V', valor:5000},
+    {item:'PRE RESFRIADOR 4 SAIDAS', valor:4500},
+    {item:'CILINDRO GAS CO2', valor:400},
+    {item:'TORNEIRA ITALIANA', valor:150}, {item:'TORNEIRA BELGA', valor:250},
+    {item:'VALVULA EXTRATORA', valor:180},
+  ],
+  gastos: [
+    {item:'INTERNET', tipo:'FIXA', valor:100, pgto:'BOLETO'},{item:'TELEFONE', tipo:'FIXA', valor:60, pgto:'CRÉDITO'},
+    {item:'ALUGUEL', tipo:'FIXA', valor:1000, pgto:'PIX'},{item:'LUZ', tipo:'FIXA', valor:100, pgto:'BOLETO'},
+    {item:'ÁGUA', tipo:'FIXA', valor:150, pgto:'BOLETO'},{item:'FUNC. VALE REFEIÇÃO', tipo:'FIXA', valor:600, pgto:'PIX'},
+    {item:'FUNC. SALÁRIO', tipo:'FIXA', valor:1070, pgto:'PIX'},{item:'CONTABILIDADE', tipo:'FIXA', valor:100, pgto:'PIX'},
+    {item:'SISTEMA DE NOTA', tipo:'FIXA', valor:35, pgto:'PIX'},{item:'FUNC. CESTA BÁSICA', tipo:'FIXA', valor:100, pgto:'PIX'},
+    {item:'PRESTAÇÃO DO CARRO', tipo:'FIXA', valor:1700, pgto:'BOLETO'},{item:'SEGURO DO CARRO', tipo:'FIXA', valor:200, pgto:'BOLETO'},
+    {item:'FUNC. ADIANTAMENTO', tipo:'FIXA', valor:600, pgto:'PIX'},{item:'IMPOSTO 2024', tipo:'FIXA', valor:330, pgto:'BOLETO'},
+    {item:'IMPOSTO 2025', tipo:'FIXA', valor:330, pgto:'BOLETO'},{item:'IMPOSTO FUNC.', tipo:'FIXA', valor:300, pgto:'BOLETO'},
+    {item:'MECÂNICA', tipo:'VARIÁVEL', valor:150, pgto:'PIX'},{item:'PAPELARIA', tipo:'VARIÁVEL', valor:10, pgto:'PIX'},
+    {item:'GRÁFICA', tipo:'VARIÁVEL', valor:120, pgto:'PIX'},{item:'REFEIÇÃO DANIEL', tipo:'VARIÁVEL', valor:45, pgto:'PIX'},
+    {item:'POSTO GASOLINA', tipo:'VARIÁVEL', valor:200, pgto:'PIX'},
+  ],
+  orcamentos: [
+    {num:34, idCli:16, tipo:'festa', data:'2025-09-02', validade:'2025-09-12', itens:[
+      {cod:3, desc:'Amstel 30L', qtde:2, preco:950, desc_perc:10},
+      {cod:5, desc:'Brahma 30L', qtde:2, preco:1050, desc_perc:0},
+      {cod:7, desc:'Dalla 50L', qtde:1, preco:600, desc_perc:10},
+    ], frete:60, desc_global:10, obs_entrega:'', obs_int:'Teste !!'},
+  ],
+  pedidos: [
+    {num:44793, idCli:1, tipo:'bar', cliente:'Estação Granada', emissao:'2025-07-29', entrega:'2025-08-02',
+     itens:[], frete:0, pagto:'Caução CRÉDITO / CRÉDITO', endEntrega:'Rua Jaime Pereira, 91', periodo:'Manhã (até 12H)', obsInt:'', vendedor:'DANIEL'},
+  ],
+  hist_orc: [
+    {num:34, idCli:16, data:'2025-09-02', cpf:'250.777.888-98', cliente:'Marco Aurélio', cod:3, desc:'Amstel', qtde:2, vunit:950},
+    {num:34, idCli:16, data:'2025-09-02', cpf:'250.777.888-98', cliente:'Marco Aurélio', cod:5, desc:'Brahma', qtde:2, vunit:1050},
+    {num:34, idCli:16, data:'2025-09-02', cpf:'250.777.888-98', cliente:'Marco Aurélio', cod:7, desc:'Dalla', qtde:1, vunit:600},
+    {num:33, idCli:15, data:'2025-09-02', cpf:'250.666.333-25', cliente:'Antono Carlos', cod:3, desc:'Amstel', qtde:2, vunit:950},
+    {num:33, idCli:15, data:'2025-09-02', cpf:'250.666.333-25', cliente:'Antono Carlos', cod:5, desc:'Brahma', qtde:1, vunit:1050},
+  ],
+};
+
+let nextOrcNum = 35;
+let nextPedNum = 44794;
+let editingOrcIdx = null;
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+const panelTitles = {
+  dashboard:'Dashboard', orcamento:'Orçamentos', pedidos:'Pedidos',
+  clientes:'Clientes', fornecedores:'Fornecedores', produtos:'Produtos',
+  comodato:'Comodato', financeiro:'Financeiro', gastos:'Gastos Fixos e Variáveis'
+};
+const panelBtns = {
+  dashboard:'', orcamento:'+ Novo Orçamento', pedidos:'+ Novo Pedido',
+  clientes:'+ Novo Cliente', fornecedores:'+ Novo Fornecedor', produtos:'',
+  comodato:'', financeiro:'', gastos:'+ Novo Gasto'
+};
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('topbarTitle').textContent = panelTitles[name] || name;
+  const btn = document.getElementById('topbarBtn');
+  if(panelBtns[name]) { btn.textContent = panelBtns[name]; btn.style.display = ''; }
+  else btn.style.display = 'none';
+  renderPanel(name);
+}
+
+function handleTopbarAction() {
+  const active = document.querySelector('.panel.active').id.replace('panel-','');
+  if(active === 'orcamento') openModalOrc();
+  if(active === 'pedidos') openModalPed();
+  if(active === 'clientes') {
+    const tab = document.querySelector('#cli-festa').classList.contains('active') ? 'festa' : 'bar';
+    if(tab === 'festa') openModal('modalCliFesta');
+    else openModal('modalCliBar');
+  }
+}
+
+// ─────────────────────────────────────────────
+// RENDER PANELS
+// ─────────────────────────────────────────────
+function renderPanel(name) {
+  if(name === 'dashboard') renderDashboard(); atualizarStatBarris();
+  if(name === 'orcamento') { renderOrcTable(); renderHistOrc(); }
+  if(name === 'pedidos') renderPedTable();
+  if(name === 'clientes') { renderCliFesta(); renderCliBares(); }
+  if(name === 'fornecedores') { renderFornCad(); renderForn(); }
+  if(name === 'produtos') { renderProdutos('festa'); renderProdutos('bar'); }
+  if(name === 'comodato') renderComodato();
+  if(name === 'gastos') renderGastos();
+}
+
+function fmt(v) { return 'R$ ' + Number(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2}); }
+
+// DASHBOARD
+function renderDashboard() {
+  document.getElementById('stat-orc').textContent = DB.orcamentos.length;
+  document.getElementById('stat-ped').textContent = DB.pedidos.length;
+  document.getElementById('stat-cli').textContent = DB.clientes_festa.length + DB.clientes_bares.length;
+  document.getElementById('stat-com').textContent = DB.comodatos_ativos.length;
+
+  // Bar chart
+  const products = ['Heineken','Amstel','Brahma','Dalla','Brasser','Vinho'];
+  const counts = products.map(p => {
+    let c = 0;
+    DB.hist_orc.forEach(h => { if(h.desc.includes(p)) c += h.qtde; });
+    return c;
+  });
+  const max = Math.max(...counts, 1);
+  document.getElementById('barChart').innerHTML = products.map((p,i) =>
+    `<div class="bar-wrap"><div class="bar" style="height:${Math.max(counts[i]/max*100,4)}px"></div><div class="bar-label">${p}</div></div>`
+  ).join('');
+
+  // Recent orc
+  document.getElementById('dashRecentOrc').innerHTML = DB.orcamentos.slice(-5).reverse().map(o => {
+    const cli = getClienteName(o.idCli, o.tipo);
+    const total = calcOrcTotalVal(o);
+    return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #252525">
+      <div><div style="font-size:13px;font-weight:600">${cli}</div><div style="font-size:11px;color:var(--gray)">Orç. #${o.num} · ${o.data}</div></div>
+      <div style="font-weight:700;color:var(--amber)">${fmt(total)}</div>
+    </div>`;
+  }).join('');
+
+  // Comodatos
+  document.getElementById('dashComodatos').innerHTML = DB.comodatos_ativos.map(c =>
+    `<tr><td><strong>${c.cliente}</strong></td><td style="font-size:12px;color:var(--gray-light)">${c.kit.substring(0,60)}...</td><td>${fmt(c.valor)}</td><td><span class="badge badge-green">Ativo</span></td></tr>`
+  ).join('');
+}
+
+function getClienteName(id, tipo) {
+  if(tipo === 'festa') {
+    const c = DB.clientes_festa.find(x => x.id == id);
+    return c ? c.cliente : 'Cliente '+id;
+  }
+  const c = DB.clientes_bares.find(x => x.cod == id);
+  return c ? c.nome : 'Cliente '+id;
+}
+
+function calcOrcTotalVal(o) {
+  let sub = 0;
+  (o.itens||[]).forEach(it => {
+    sub += it.preco * it.qtde * (1 - (it.desc_perc||0)/100);
+  });
+  const desc = sub * (o.desc_global||0) / 100;
+  return sub - desc + (o.frete||0);
+}
+
+// ORC TABLE
+function renderOrcTable() {
+  document.getElementById('orcTableBody').innerHTML = DB.orcamentos.map((o,i) => {
+    const cli = getClienteName(o.idCli, o.tipo);
+    const total = calcOrcTotalVal(o);
+    return `<tr>
+      <td><strong>#${o.num}</strong></td>
+      <td>${cli}</td>
+      <td>${o.data}</td>
+      <td>${o.validade}</td>
+      <td style="color:var(--amber);font-weight:700">${fmt(total)}</td>
+      <td>${(o.itens||[]).length}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editOrc(${i})">✏️</button>
+        <button class="btn btn-ghost btn-sm" onclick="printOrcIdx(${i})">🖨️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteOrc(${i})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:30px">Nenhum orçamento cadastrado</td></tr>`;
+}
+
+function renderHistOrc() {
+  document.getElementById('histOrcBody').innerHTML = DB.hist_orc.map(h => {
+    const total = h.qtde * h.vunit;
+    return `<tr>
+      <td><strong>#${h.num}</strong></td>
+      <td>${h.cliente}</td>
+      <td>${h.data}</td>
+      <td>${h.desc}</td>
+      <td>${h.qtde}</td>
+      <td>${fmt(h.vunit)}</td>
+      <td style="color:var(--amber)">${fmt(total)}</td>
+    </tr>`;
+  }).join('');
+}
+
+// PED TABLE
+function renderPedTable() {
+  document.getElementById('pedTableBody').innerHTML = DB.pedidos.map((p,i) => {
+    const total = (p.itens||[]).reduce((s,it) => s + it.preco * it.qtde, 0) + (p.frete||0);
+    return `<tr>
+      <td><strong>#${p.num}</strong></td>
+      <td>${p.cliente}</td>
+      <td>${p.emissao}</td>
+      <td>${p.entrega}</td>
+      <td style="color:var(--amber);font-weight:700">${fmt(total)}</td>
+      <td>${p.pagto}</td>
+      <td>
+        <select class="status-select" onchange="alterarStatusPed(${i}, this.value)" style="background:var(--dark2);border:1px solid #3A3A3A;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:600;color:var(--white);cursor:pointer">
+          <option value="aberto" ${p.status==='aberto'||!p.status ? 'selected' : ''} style="color:#1E88E5">Em Aberto</option>
+          <option value="parcial" ${p.status==='parcial' ? 'selected' : ''} style="color:#F5A623">Pago Parcial</option>
+          <option value="pago" ${p.status==='pago' ? 'selected' : ''} style="color:#4CAF50">Pago</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="printPedIdx(${i})">🖨️</button>
+        <button class="btn btn-danger btn-sm" onclick="deletePed(${i})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:30px">Nenhum pedido cadastrado</td></tr>`;
+}
+
+// CLI FESTA
+function renderCliFesta() {
+  document.getElementById('cliFestaBody').innerHTML = DB.clientes_festa.map((c,i) =>
+    `<tr>
+      <td>${c.id}</td>
+      <td><strong>${c.cliente}</strong></td>
+      <td style="font-size:12px">${c.cpf}</td>
+      <td>${c.cidade}</td>
+      <td>${c.telefone}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="verCliFesta(${i})" title="Visualizar">👁️</button>
+        <button class="btn btn-ghost btn-sm" onclick="editCliFesta(${i})" title="Editar">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliFesta(${i})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`
+  ).join('');
+}
+
+function renderCliBares() {
+  document.getElementById('cliBaresBody').innerHTML = DB.clientes_bares.map((c,i) =>
+    `<tr>
+      <td>${c.cod}</td>
+      <td><strong>${c.nome}</strong></td>
+      <td>${c.resp}</td>
+      <td>${c.contato}</td>
+      <td><span class="badge badge-amber">${c.pagto}</span></td>
+      <td>${c.vendedor}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="editCliBar(${i})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteCliBar(${i})">🗑️</button>
+      </td>
+    </tr>`
+  ).join('');
+}
+
+// FORNECEDORES
+function renderForn() {
+  let lastForn = '';
+  document.getElementById('fornBody').innerHTML = DB.fornecedores.map(f => {
+    const isNew = f.forn !== lastForn;
+    if(isNew) lastForn = f.forn;
+    const margem = ((f.vbarril / (f.vbarril)) * 0).toFixed(0); // placeholder
+    return `<tr>
+      <td>${isNew ? `<span style="font-weight:700;color:var(--amber)">${f.forn}</span>` : ''}</td>
+      <td>${f.cod || '—'}</td>
+      <td>${f.produto}</td>
+      <td>${f.litros}L</td>
+      <td>${fmt(f.vlitro)}</td>
+      <td style="font-weight:700">${fmt(f.vbarril)}</td>
+      <td><span class="badge badge-blue">${f.pgto}</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// PRODUTOS
+function renderProdutos(tipo) {
+  const list = tipo === 'festa' ? DB.produtos_festa : DB.produtos_bar;
+  const tbody = tipo === 'festa' ? 'prodFestaBody' : 'prodBarBody';
+  document.getElementById(tbody).innerHTML = list.map(p => {
+    const margem = ((p.venda - p.custo) / p.venda * 100).toFixed(1);
+    const mColor = margem > 40 ? 'var(--green)' : margem > 20 ? 'var(--amber)' : 'var(--red)';
+    return `<tr>
+      <td>${p.cod}</td>
+      <td><strong>${p.prod}</strong></td>
+      <td>${p.litros}L</td>
+      <td style="color:var(--amber);font-weight:700">${fmt(p.venda)}</td>
+      <td style="color:var(--gray)">${fmt(p.custo)}</td>
+      <td><span style="color:${mColor};font-weight:700">${margem}%</span></td>
+    </tr>`;
+  }).join('');
+}
+
+// COMODATO
+function renderComodato() {
+  document.getElementById('comodAtivoBody').innerHTML = DB.comodatos_ativos.map(c =>
+    `<tr><td><strong>${c.cliente}</strong></td><td style="font-size:11px;color:var(--gray-light)">${c.kit.substring(0,55)}...</td><td>${fmt(c.valor)}</td></tr>`
+  ).join('');
+  document.getElementById('comodEstoqueBody').innerHTML = DB.comodatos_estoque.map(c =>
+    `<tr><td>${c.item}</td><td>${fmt(c.valor)}</td><td><span class="badge badge-amber">Estoque</span></td></tr>`
+  ).join('');
+}
+
+// GASTOS
+function renderGastos() {
+  const totalGeral = DB.gastos.reduce((s,g) => s + g.valor, 0);
+  const fixo = DB.gastos.filter(g=>g.tipo==='FIXA').reduce((s,g)=>s+g.valor,0);
+  const variavel = DB.gastos.filter(g=>g.tipo==='VARIÁVEL').reduce((s,g)=>s+g.valor,0);
+
+  document.getElementById('totalFixo').textContent = fmt(fixo);
+  document.getElementById('totalVar').textContent = fmt(variavel);
+
+  document.getElementById('gastosBody').innerHTML = DB.gastos.map((g,i) => {
+    const pct = (g.valor / totalGeral * 100).toFixed(1);
+    return `<tr>
+      <td><strong>${g.item}</strong></td>
+      <td><span class="badge ${g.tipo==='FIXA' ? 'badge-blue':'badge-amber'}">${g.tipo}</span></td>
+      <td style="font-weight:600">${fmt(g.valor)}</td>
+      <td><span class="badge badge-green">${g.pgto}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="progress-bar" style="flex:1">
+            <div class="progress-fill" style="width:${pct}%"></div>
+          </div>
+          <span style="font-size:11px;color:var(--gray);width:36px">${pct}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ─────────────────────────────────────────────
+// MODAL ORC
+// ─────────────────────────────────────────────
+function openModalOrc(data) {
+  editingOrcIdx = data !== undefined ? data : null;
+  document.getElementById('modalOrcTitle').textContent = editingOrcIdx !== null ? 'Editar Orçamento' : 'Novo Orçamento';
+  updateClienteSelect();
+  if(editingOrcIdx !== null) {
+    const o = DB.orcamentos[editingOrcIdx];
+    document.getElementById('orcTipoCliente').value = o.tipo;
+    updateClienteSelect();
+    document.getElementById('orcCliente').value = o.idCli;
+    document.getElementById('orcDataEmissao').value = o.data;
+    document.getElementById('orcValidoAte').value = o.validade;
+    document.getElementById('orcFrete').value = o.frete || 0;
+    document.getElementById('orcDescGlobal').value = o.desc_global || 0;
+    document.getElementById('orcObs').value = o.obs_entrega || '';
+    // load itens
+    const tbody = document.getElementById('orcItens');
+    tbody.innerHTML = '';
+    (o.itens||[]).forEach((it,i) => {
+      addItemOrc();
+      const rows = tbody.querySelectorAll('tr');
+      const row = rows[rows.length-1];
+      row.querySelector('.item-prod').value = it.cod;
+      row.querySelector('.item-qtde').value = it.qtde;
+      row.querySelector('.item-preco').value = it.preco;
+      row.querySelector('.item-desc').value = it.desc_perc || 0;
+      calcItemOrc(row);
+    });
+    preencherCliente();
+  } else {
+    document.getElementById('orcItens').innerHTML = '';
+    const today = new Date().toISOString().split('T')[0];
+    const valid = new Date(Date.now() + 10*864e5).toISOString().split('T')[0];
+    document.getElementById('orcDataEmissao').value = today;
+    document.getElementById('orcValidoAte').value = valid;
+    document.getElementById('orcFrete').value = 0;
+    document.getElementById('orcDescGlobal').value = 0;
+    document.getElementById('orcObs').value = '';
+    document.getElementById('orcClienteInfo').value = '';
+    addItemOrc();
+    calcOrcTotal();
+  }
+  openModal('modalOrc');
+}
+
+function editOrc(i) { openModalOrc(i); }
+function deleteOrc(i) { if(confirm('Excluir orçamento?')) { DB.orcamentos.splice(i,1); renderOrcTable(); showToast('Orçamento excluído'); } }
+function deletePed(i) { if(confirm('Excluir pedido?')) { DB.pedidos.splice(i,1); renderPedTable(); showToast('Pedido excluído'); } }
+
+function updateClienteSelect() {
+  const tipo = document.getElementById('orcTipoCliente').value;
+  const sel = document.getElementById('orcCliente');
+  sel.innerHTML = '';
+  const list = tipo === 'festa' ? DB.clientes_festa : DB.clientes_bares;
+  list.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = tipo === 'festa' ? c.id : c.cod;
+    opt.textContent = tipo === 'festa' ? c.cliente : c.nome;
+    sel.appendChild(opt);
+  });
+  preencherCliente();
+}
+
+function preencherCliente() {
+  const tipo = document.getElementById('orcTipoCliente').value;
+  const id = document.getElementById('orcCliente').value;
+  let info = '';
+  if(tipo === 'festa') {
+    const c = DB.clientes_festa.find(x => x.id == id);
+    if(c) info = `${c.cpf} · ${c.endereco}, ${c.numero} · ${c.cidade} · ${c.telefone}`;
+  } else {
+    const c = DB.clientes_bares.find(x => x.cod == id);
+    if(c) info = `${c.cnpj} · ${c.resp} · ${c.contato} · ${c.pagto}`;
+  }
+  document.getElementById('orcClienteInfo').value = info;
+  // update produtos based on tipo
+  document.querySelectorAll('.item-prod').forEach(sel => fillProdSelect(sel, tipo));
+}
+
+function getProdList(tipo) {
+  return tipo === 'festa' ? DB.produtos_festa : DB.produtos_bar;
+}
+
+function fillProdSelect(sel, tipo) {
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">— selecionar —</option>';
+  getProdList(tipo).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.cod;
+    opt.textContent = p.prod;
+    opt.dataset.preco = p.venda;
+    sel.appendChild(opt);
+  });
+  if(cur) sel.value = cur;
+}
+
+function addItemOrc() {
+  const tipo = document.getElementById('orcTipoCliente').value;
+  const tbody = document.getElementById('orcItens');
+  const idx = tbody.querySelectorAll('tr').length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${idx}</td>
+    <td><select class="item-prod" onchange="autoFillPreco(this)"><option value="">— selecionar —</option></select></td>
+    <td><input type="number" class="item-qtde" value="1" min="1" oninput="calcItemOrc(this.closest('tr'))"></td>
+    <td><input type="number" class="item-preco" value="0" oninput="calcItemOrc(this.closest('tr'))"></td>
+    <td><input type="number" class="item-desc" value="0" min="0" max="100" oninput="calcItemOrc(this.closest('tr'))"></td>
+    <td class="item-total">R$ 0,00</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeItemRow(this)">✕</button></td>
+  `;
+  fillProdSelect(tr.querySelector('.item-prod'), tipo);
+  tbody.appendChild(tr);
+  calcOrcTotal();
+}
+
+function autoFillPreco(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  if(opt && opt.dataset.preco) {
+    sel.closest('tr').querySelector('.item-preco').value = opt.dataset.preco;
+    calcItemOrc(sel.closest('tr'));
+  }
+}
+
+function calcItemOrc(row) {
+  const qtde = parseFloat(row.querySelector('.item-qtde').value) || 0;
+  const preco = parseFloat(row.querySelector('.item-preco').value) || 0;
+  const desc = parseFloat(row.querySelector('.item-desc').value) || 0;
+  const total = qtde * preco * (1 - desc/100);
+  row.querySelector('.item-total').textContent = fmt(total);
+  calcOrcTotal();
+}
+
+function removeItemRow(btn) { btn.closest('tr').remove(); calcOrcTotal(); }
+
+function calcOrcTotal() {
+  let sub = 0;
+  document.querySelectorAll('#orcItens tr').forEach(row => {
+    const qtde = parseFloat(row.querySelector('.item-qtde')?.value) || 0;
+    const preco = parseFloat(row.querySelector('.item-preco')?.value) || 0;
+    const desc = parseFloat(row.querySelector('.item-desc')?.value) || 0;
+    sub += qtde * preco * (1 - desc/100);
+  });
+  const descGlobal = parseFloat(document.getElementById('orcDescGlobal').value) || 0;
+  const frete = parseFloat(document.getElementById('orcFrete').value) || 0;
+  const descVal = sub * descGlobal / 100;
+  const total = sub - descVal + frete;
+  document.getElementById('orcSubtotal').textContent = fmt(sub);
+  document.getElementById('orcDescontoVal').textContent = fmt(descVal);
+  document.getElementById('orcFreteVal').textContent = fmt(frete);
+  document.getElementById('orcTotal').textContent = fmt(total);
+}
+
+function saveOrc() {
+  const tipo = document.getElementById('orcTipoCliente').value;
+  const idCli = document.getElementById('orcCliente').value;
+  const data = document.getElementById('orcDataEmissao').value;
+  const validade = document.getElementById('orcValidoAte').value;
+  const frete = parseFloat(document.getElementById('orcFrete').value) || 0;
+  const desc_global = parseFloat(document.getElementById('orcDescGlobal').value) || 0;
+  const obs_entrega = document.getElementById('orcObs').value;
+
+  const itens = [];
+  document.querySelectorAll('#orcItens tr').forEach(row => {
+    const cod = row.querySelector('.item-prod').value;
+    const qtde = parseFloat(row.querySelector('.item-qtde').value) || 0;
+    const preco = parseFloat(row.querySelector('.item-preco').value) || 0;
+    const desc_perc = parseFloat(row.querySelector('.item-desc').value) || 0;
+    const desc = row.querySelector('.item-prod').options[row.querySelector('.item-prod').selectedIndex]?.text || '';
+    if(cod && qtde > 0) itens.push({cod:parseInt(cod), desc, qtde, preco, desc_perc});
+  });
+
+  const orc = {num: editingOrcIdx !== null ? DB.orcamentos[editingOrcIdx].num : nextOrcNum++,
+    idCli: parseInt(idCli), tipo, data, validade, itens, frete, desc_global, obs_entrega};
+
+  if(editingOrcIdx !== null) {
+    DB.orcamentos[editingOrcIdx] = orc;
+    // update hist
+  } else {
+    DB.orcamentos.push(orc);
+    // add to hist
+    itens.forEach(it => DB.hist_orc.push({num:orc.num, idCli:orc.idCli, data:orc.data, cpf:'', cliente:getClienteName(idCli, tipo), cod:it.cod, desc:it.desc, qtde:it.qtde, vunit:it.preco}));
+  }
+  closeModal('modalOrc');
+  renderOrcTable();
+  renderHistOrc();
+  showToast('Orçamento salvo com sucesso!');
+}
+
+// ─────────────────────────────────────────────
+// MODAL PED
+// ─────────────────────────────────────────────
+function openModalPed() {
+  updatePedClienteSelect();
+  document.getElementById('pedItens').innerHTML = '';
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('pedDataEmissao').value = today;
+  document.getElementById('pedDataEntrega').value = new Date(Date.now() + 3*864e5).toISOString().split('T')[0];
+  document.getElementById('pedFrete').value = 0;
+  addItemPed();
+  openModal('modalPed');
+}
+
+function updatePedClienteSelect() {
+  const tipo = document.getElementById('pedTipoCliente').value;
+  const sel = document.getElementById('pedCliente');
+  sel.innerHTML = '';
+  const list = tipo === 'bar' ? DB.clientes_bares : DB.clientes_festa;
+  list.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = tipo === 'bar' ? c.cod : c.id;
+    opt.textContent = tipo === 'bar' ? c.nome : c.cliente;
+    sel.appendChild(opt);
+  });
+  preencherClientePed();
+}
+
+function preencherClientePed() {
+  const tipo = document.getElementById('pedTipoCliente').value;
+  const id = document.getElementById('pedCliente').value;
+  let pagto = '', end = '';
+  if(tipo === 'bar') {
+    const c = DB.clientes_bares.find(x => x.cod == id);
+    if(c) { pagto = c.pagto; end = ''; }
+  }
+  document.getElementById('pedPagto').value = pagto;
+  document.getElementById('pedEndEntrega').value = end;
+  document.querySelectorAll('#pedItens .item-prod').forEach(sel => fillProdSelect(sel, tipo));
+}
+
+function addItemPed() {
+  const tipo = document.getElementById('pedTipoCliente').value;
+  const tbody = document.getElementById('pedItens');
+  const idx = tbody.querySelectorAll('tr').length + 1;
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>${idx}</td>
+    <td><select class="item-prod" onchange="autoFillPreco(this)"><option value="">— selecionar —</option></select></td>
+    <td><input type="number" class="item-qtde" value="1" min="1" oninput="calcPedItem(this.closest('tr'))"></td>
+    <td><input type="number" class="item-preco" value="0" oninput="calcPedItem(this.closest('tr'))"></td>
+    <td><input type="number" class="item-desc" value="0" oninput="calcPedItem(this.closest('tr'))"></td>
+    <td class="item-total">R$ 0,00</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeItemRow(this)">✕</button></td>
+  `;
+  fillProdSelect(tr.querySelector('.item-prod'), tipo);
+  tbody.appendChild(tr);
+  calcPedTotal();
+}
+
+function calcPedItem(row) {
+  const qtde = parseFloat(row.querySelector('.item-qtde').value) || 0;
+  const preco = parseFloat(row.querySelector('.item-preco').value) || 0;
+  const desc = parseFloat(row.querySelector('.item-desc').value) || 0;
+  row.querySelector('.item-total').textContent = fmt(qtde * preco * (1-desc/100));
+  calcPedTotal();
+}
+
+function calcPedTotal() {
+  let sub = 0;
+  document.querySelectorAll('#pedItens tr').forEach(row => {
+    sub += (parseFloat(row.querySelector('.item-qtde')?.value)||0) * (parseFloat(row.querySelector('.item-preco')?.value)||0) * (1-(parseFloat(row.querySelector('.item-desc')?.value)||0)/100);
+  });
+  const frete = parseFloat(document.getElementById('pedFrete').value) || 0;
+  document.getElementById('pedSubtotal').textContent = fmt(sub);
+  document.getElementById('pedFreteVal').textContent = fmt(frete);
+  document.getElementById('pedTotal').textContent = fmt(sub + frete);
+}
+
+function savePed() {
+  const tipo = document.getElementById('pedTipoCliente').value;
+  const idCli = document.getElementById('pedCliente').value;
+  const cliente = getClienteName(idCli, tipo);
+  const itens = [];
+  document.querySelectorAll('#pedItens tr').forEach(row => {
+    const cod = row.querySelector('.item-prod').value;
+    const qtde = parseFloat(row.querySelector('.item-qtde').value)||0;
+    const preco = parseFloat(row.querySelector('.item-preco').value)||0;
+    const desc_perc = parseFloat(row.querySelector('.item-desc').value)||0;
+    const desc = row.querySelector('.item-prod').options[row.querySelector('.item-prod').selectedIndex]?.text || '';
+    if(cod && qtde > 0) itens.push({cod:parseInt(cod), desc, qtde, preco, desc_perc});
+  });
+  DB.pedidos.push({
+    num: nextPedNum++, idCli: parseInt(idCli), tipo, cliente,
+    emissao: document.getElementById('pedDataEmissao').value,
+    entrega: document.getElementById('pedDataEntrega').value,
+    vendedor: document.getElementById('pedVendedor').value,
+    pagto: document.getElementById('pedPagto').value,
+    endEntrega: document.getElementById('pedEndEntrega').value,
+    periodo: document.getElementById('pedPeriodo').value,
+    obsInt: document.getElementById('pedObsInt').value,
+    itens, frete: parseFloat(document.getElementById('pedFrete').value)||0
+  });
+  closeModal('modalPed');
+  renderPedTable();
+  showToast('Pedido salvo com sucesso!');
+}
+
+// ─────────────────────────────────────────────
+// CLIENTES CRUD
+// ─────────────────────────────────────────────
+function editCliFesta(i) {
+  const c = DB.clientes_festa[i];
+  document.getElementById('modalCliFestaTitle').textContent = 'Editar Cliente — Festa';
+  document.getElementById('cfNome').value = c.cpf;
+  document.getElementById('cfCliente').value = c.cliente;
+  document.getElementById('cfEndereco').value = c.endereco;
+  document.getElementById('cfNumero').value = c.numero;
+  document.getElementById('cfCep').value = c.cep;
+  document.getElementById('cfBairro').value = c.bairro;
+  document.getElementById('cfCidade').value = c.cidade;
+  document.getElementById('cfTelefone').value = c.telefone;
+  openModal('modalCliFesta');
+}
+
+function saveCliFesta() {
+  const newC = {
+    id: DB.clientes_festa.length ? Math.max(...DB.clientes_festa.map(x=>x.id)) + 1 : 1,
+    cpf: document.getElementById('cfNome').value,
+    cliente: document.getElementById('cfCliente').value,
+    endereco: document.getElementById('cfEndereco').value,
+    numero: document.getElementById('cfNumero').value,
+    cep: document.getElementById('cfCep').value,
+    bairro: document.getElementById('cfBairro').value,
+    cidade: document.getElementById('cfCidade').value,
+    telefone: document.getElementById('cfTelefone').value,
+  };
+  DB.clientes_festa.push(newC);
+  closeModal('modalCliFesta');
+  renderCliFesta();
+  showToast('Cliente salvo!');
+}
+
+function deleteCliFesta(i) { if(confirm('Excluir cliente?')) { DB.clientes_festa.splice(i,1); renderCliFesta(); showToast('Cliente removido'); } }
+
+function editCliBar(i) {
+  const c = DB.clientes_bares[i];
+  document.getElementById('cbSegmento').value = c.seg;
+  document.getElementById('cbCnpj').value = c.cnpj;
+  document.getElementById('cbNome').value = c.nome;
+  document.getElementById('cbResp').value = c.resp;
+  document.getElementById('cbContato').value = c.contato;
+  document.getElementById('cbEmail').value = c.email;
+  document.getElementById('cbVendedor').value = c.vendedor;
+  document.getElementById('cbPagto').value = c.pagto;
+  document.getElementById('cbObs').value = c.obs;
+  openModal('modalCliBar');
+}
+
+function saveCliBar() {
+  const newC = {
+    cod: DB.clientes_bares.length ? Math.max(...DB.clientes_bares.map(x=>x.cod)) + 1 : 1,
+    seg: document.getElementById('cbSegmento').value,
+    cnpj: document.getElementById('cbCnpj').value,
+    nome: document.getElementById('cbNome').value,
+    resp: document.getElementById('cbResp').value,
+    contato: document.getElementById('cbContato').value,
+    email: document.getElementById('cbEmail').value,
+    vendedor: document.getElementById('cbVendedor').value,
+    pagto: document.getElementById('cbPagto').value,
+    obs: document.getElementById('cbObs').value,
+  };
+  DB.clientes_bares.push(newC);
+  closeModal('modalCliBar');
+  renderCliBares();
+  showToast('Cliente salvo!');
+}
+
+function deleteCliBar(i) { if(confirm('Excluir cliente?')) { DB.clientes_bares.splice(i,1); renderCliBares(); showToast('Cliente removido'); } }
+
+// ─────────────────────────────────────────────
+// PRINT
+// ─────────────────────────────────────────────
+function printOrcIdx(i) {
+  const o = DB.orcamentos[i];
+  doPrintOrc(o);
+}
+
+function printOrc() {
+  // assemble from current modal
+  const tipo = document.getElementById('orcTipoCliente').value;
+  const idCli = document.getElementById('orcCliente').value;
+  const data = document.getElementById('orcDataEmissao').value;
+  const validade = document.getElementById('orcValidoAte').value;
+  const frete = parseFloat(document.getElementById('orcFrete').value)||0;
+  const descGlobal = parseFloat(document.getElementById('orcDescGlobal').value)||0;
+  const itens = [];
+  document.querySelectorAll('#orcItens tr').forEach(row => {
+    const cod = row.querySelector('.item-prod').value;
+    const qtde = parseFloat(row.querySelector('.item-qtde').value)||0;
+    const preco = parseFloat(row.querySelector('.item-preco').value)||0;
+    const desc_perc = parseFloat(row.querySelector('.item-desc').value)||0;
+    const desc = row.querySelector('.item-prod').options[row.querySelector('.item-prod').selectedIndex]?.text||'';
+    if(cod && qtde > 0) itens.push({cod, desc, qtde, preco, desc_perc});
+  });
+  doPrintOrc({num: editingOrcIdx !== null ? DB.orcamentos[editingOrcIdx].num : nextOrcNum, idCli, tipo, data, validade, itens, frete, desc_global:descGlobal});
+}
+
+function doPrintOrc(o) {
+  const cli = o.tipo === 'festa'
+    ? DB.clientes_festa.find(x => x.id == o.idCli)
+    : DB.clientes_bares.find(x => x.cod == o.idCli);
+
+  let sub = 0;
+  const itensHTML = (o.itens||[]).map((it,i) => {
+    const total = it.preco * it.qtde * (1 - (it.desc_perc||0)/100);
+    sub += total;
+    return `<tr>
+      <td style="border:1px solid #ccc;padding:6px;text-align:center">${i+1}</td>
+      <td style="border:1px solid #ccc;padding:6px;text-align:center">${it.cod}</td>
+      <td style="border:1px solid #ccc;padding:6px">${it.desc}</td>
+      <td style="border:1px solid #ccc;padding:6px;text-align:center">${it.qtde}</td>
+      <td style="border:1px solid #ccc;padding:6px;text-align:right">${fmt(it.preco)}</td>
+      <td style="border:1px solid #ccc;padding:6px;text-align:center">${it.desc_perc||0}</td>
+      <td style="border:1px solid #ccc;padding:6px;text-align:right">${fmt(total)}</td>
+    </tr>`;
+  }).join('');
+  const descVal = sub * (o.desc_global||0)/100;
+  const total = sub - descVal + (o.frete||0);
+
+  const nomeCliente = cli ? (cli.cliente || cli.nome) : '';
+  const cpfCliente = cli ? (cli.cpf || cli.cnpj || '') : '';
+  const endCliente = cli ? (o.tipo==='festa' ? `${cli.endereco}, ${cli.numero}` : '') : '';
+  const telCliente = cli ? (cli.telefone || cli.contato || '') : '';
+
+  const html = `
+    <html><head><title>Orçamento #${o.num}</title>
+    <style>body{font-family:Arial,sans-serif;font-size:12px;color:#000;margin:20px}
+    table{border-collapse:collapse;width:100%}
+    .header{text-align:right;font-size:11px}
+    h1{font-size:28px;text-align:center;color:#333;margin:10px 0 20px}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:16px}
+    .field-row{display:flex;gap:6px;font-size:12px}
+    .field-label{font-weight:bold;min-width:80px}
+    </style></head>
+    <body>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="font-size:18px;font-weight:bold;color:#F5A623">🍺 Do Chopp</div>
+      <div class="header">Do Chopp Distribuidora Ltda — (11) 99458-6179<br>Rua Nidia, 221 - Bl 04 - Apto 43<br>CEP: 07242-400 - Guarulhos<br>brejalima@gmail.com</div>
+    </div>
+    <h1>Orçamento</h1>
+    <table style="margin-bottom:16px"><tr>
+      <td><b>Cliente ID:</b> ${o.idCli}</td>
+      <td><b>Nome:</b> ${nomeCliente}</td>
+      <td style="text-align:right"><b>Orçamento Nº:</b> ${o.num}</td>
+    </tr><tr>
+      <td colspan="2"><b>CPF/CNPJ:</b> ${cpfCliente}</td>
+      <td style="text-align:right"><b>Data Emissão:</b> ${o.data}</td>
+    </tr><tr>
+      <td colspan="2"><b>Endereço:</b> ${endCliente}</td>
+      <td style="text-align:right;background:#ffeb99"><b>Válido até:</b> ${o.validade}</td>
+    </tr><tr>
+      <td colspan="2"><b>Telefone:</b> ${telCliente}</td>
+      <td></td>
+    </tr></table>
+    <b>Vendedor: DANIEL</b>
+    <h3 style="margin:12px 0 6px">Itens do Pedido de Orçamento:</h3>
+    <table>
+      <tr style="background:#eee">
+        <th style="border:1px solid #ccc;padding:6px">Item</th>
+        <th style="border:1px solid #ccc;padding:6px">Código</th>
+        <th style="border:1px solid #ccc;padding:6px">Descrição</th>
+        <th style="border:1px solid #ccc;padding:6px">Qtde</th>
+        <th style="border:1px solid #ccc;padding:6px">Preço Unit.</th>
+        <th style="border:1px solid #ccc;padding:6px">Desc %</th>
+        <th style="border:1px solid #ccc;padding:6px">Total</th>
+      </tr>
+      ${itensHTML}
+    </table>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px">
+      <table style="width:240px">
+        <tr><td>Nº de Itens:</td><td style="text-align:right">${(o.itens||[]).length}</td></tr>
+        <tr><td>Desc. %:</td><td style="text-align:right">${o.desc_global||0}</td></tr>
+        <tr><td>Total de Produtos:</td><td style="text-align:right">${fmt(sub)}</td></tr>
+        <tr><td>Desconto:</td><td style="text-align:right">${fmt(descVal)}</td></tr>
+        <tr><td>Frete:</td><td style="text-align:right">${fmt(o.frete||0)}</td></tr>
+        <tr style="font-weight:bold;font-size:14px"><td>Total do Pedido:</td><td style="text-align:right">${fmt(total)}</td></tr>
+      </table>
+    </div>
+    
+<!-- MODAL VISUALIZAR CLIENTE FESTA -->
+<div class="modal-overlay" id="modalVerCliFesta">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <h3>👁️ Dados do Cliente</h3>
+      <button class="modal-close" onclick="closeModal('modalVerCliFesta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="verCliFestaContent"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalVerCliFesta')">Fechar</button>
+      <button class="btn btn-primary" id="btnEditarDeVer">✏️ Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR PRODUTO -->
+<div class="modal-overlay" id="modalProd">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h3 id="modalProdTitle">Novo Produto</h3>
+      <button class="modal-close" onclick="closeModal('modalProd')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Tabela</label>
+          <select id="prodTabela"><option value="festa">Festa</option><option value="bar">Bar</option></select>
+        </div>
+        <div class="field"><label>Código</label><input type="number" id="prodCod"></div>
+        <div class="field span2"><label>Nome do Produto</label><input type="text" id="prodNome"></div>
+        <div class="field"><label>Litros</label><input type="number" id="prodLitros"></div>
+        <div class="field"><label>Estoque Atual</label><input type="number" id="prodEstoque" value="0"></div>
+        <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="prodVenda" step="0.01" oninput="calcMargem()"></div>
+        <div class="field"><label>Custo Barril (R$)</label><input type="number" id="prodCusto" step="0.01" oninput="calcMargem()"></div>
+        <div class="field span2">
+          <label>Margem calculada</label>
+          <div style="background:var(--dark2);border:1px solid #3A3A3A;border-radius:6px;padding:9px 12px;font-weight:700" id="prodMargemCalc">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalProd')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProd()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR FORNECEDOR -->
+<div class="modal-overlay" id="modalForn">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-head">
+      <h3 id="modalFornTitle">Novo Fornecedor</h3>
+      <button class="modal-close" onclick="closeModal('modalForn')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Nome / Razão Social</label><input type="text" id="fornNome"></div>
+        <div class="field"><label>CNPJ</label><input type="text" id="fornCnpj"></div>
+        <div class="field"><label>Contato (Nome)</label><input type="text" id="fornContato"></div>
+        <div class="field"><label>Telefone</label><input type="text" id="fornTelefone"></div>
+        <div class="field"><label>E-mail</label><input type="text" id="fornEmail"></div>
+        <div class="field span2"><label>Endereço</label><input type="text" id="fornEndereco"></div>
+        <div class="field"><label>Forma de Pagamento</label><input type="text" id="fornPgto"></div>
+        <div class="field"><label>Status</label>
+          <select id="fornStatus">
+            <option value="ativo">✅ Ativo</option>
+            <option value="inativo">❌ Inativo</option>
+          </select>
+        </div>
+        <div class="field span2"><label>Observações</label><textarea id="fornObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalForn')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveForn()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO COMODATO -->
+<div class="modal-overlay" id="modalNovoComod">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-head">
+      <h3>Novo Comodato</h3>
+      <button class="modal-close" onclick="closeModal('modalNovoComod')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Cliente</label>
+          <select id="comodCliente"></select>
+        </div>
+        <div class="field"><label>Data de Saída</label><input type="date" id="comodDataSaida"></div>
+        <div class="field span2"><label>Kit / Equipamento</label><input type="text" id="comodKit"></div>
+        <div class="field"><label>Valor do Comodato (R$)</label><input type="number" id="comodValor" step="0.01"></div>
+        <div class="field"><label>Qtde de Itens</label><input type="number" id="comodQtde" value="1"></div>
+        <div class="field span2"><label>Observações</label><textarea id="comodObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalNovoComod')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNovoComod()">💾 Registrar Saída</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECOLHER COMODATO -->
+<div class="modal-overlay" id="modalRecolher">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <h3>📦 Registrar Recolhimento</h3>
+      <button class="modal-close" onclick="closeModal('modalRecolher')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="recolherInfoCliente" style="background:var(--dark2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--gray-light)"></div>
+      <div class="form-grid">
+        <div class="field"><label>Data de Retorno</label><input type="date" id="recolherData"></div>
+        <div class="field"><label>Qtde Recolhida</label><input type="number" id="recolherQtde" value="1" min="1"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="recolherTipo">
+            <option value="recolhimento">Recolhimento Total</option>
+            <option value="troca">Troca (Bar)</option>
+            <option value="parcial">Recolhimento Parcial</option>
+          </select>
+        </div>
+        <div class="field"><label>Quem Recolheu</label><input type="text" id="recolherQuem" value="DANIEL"></div>
+        <div class="field span2"><label>Observações</label><textarea id="recolherObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalRecolher')">Cancelar</button>
+      <button class="btn btn-success" onclick="saveRecolher()">✅ Confirmar Recolhimento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO EQUIPAMENTO -->
+<div class="modal-overlay" id="modalEquip">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="modalEquipTitle">Novo Equipamento</h3>
+      <button class="modal-close" onclick="closeModal('modalEquip')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Descrição</label><input type="text" id="equipDesc"></div>
+        <div class="field"><label>Valor Unitário (R$)</label><input type="number" id="equipValor" step="0.01"></div>
+        <div class="field"><label>Qtde em Estoque</label><input type="number" id="equipQtde" value="1"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalEquip')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEquip()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR GASTO -->
+<div class="modal-overlay" id="modalGasto">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="modalGastoTitle">Novo Gasto</h3>
+      <button class="modal-close" onclick="closeModal('modalGasto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Descrição</label><input type="text" id="gastoItem"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="gastoTipo"><option value="FIXA">Fixo</option><option value="VARIÁVEL">Variável</option></select>
+        </div>
+        <div class="field"><label>Valor (R$)</label><input type="number" id="gastoValor" step="0.01"></div>
+        <div class="field"><label>Forma de Pagamento</label><input type="text" id="gastoPgto"></div>
+        <div class="field"><label>Dia de Vencimento</label><input type="number" id="gastoVcto" min="1" max="31" placeholder="Ex: 10"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalGasto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGasto()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+</body></html>`;
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  w.print();
+}
+
+function printPedIdx(i) { showToast('Impressão do pedido em breve!'); }
+function printPed() { showToast('Impressão do pedido em breve!'); }
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+function filterTable(tableId, q) {
+  const table = document.getElementById(tableId);
+  if(!table) return;
+  const rows = table.querySelectorAll('tbody tr');
+  q = q.toLowerCase();
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+function switchTab(prefix, name, btn) {
+  document.querySelectorAll(`#${prefix}-${btn?.closest('.tabs')?.getAttribute('data-prefix') || ''}`);
+  // find all tab-content siblings
+  const allContents = document.querySelectorAll(`[id^="${prefix}-"]`);
+  allContents.forEach(el => el.classList.remove('active'));
+  document.getElementById(`${prefix}-${name}`)?.classList.add('active');
+
+  if(btn) {
+    btn.closest('.tabs').querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+
+
+// ── DADOS EXTRAS ────────────────────────────────────────────────
+DB.fornecedores_cad = [
+  {id:1, nome:'CERVEJARIA DALLA', cnpj:'', contato:'', telefone:'', email:'', endereco:'', pgto:'PIX', status:'ativo', obs:''},
+  {id:2, nome:'CERVEJARIA BRASSER', cnpj:'', contato:'', telefone:'', email:'', endereco:'', pgto:'PIX', status:'ativo', obs:''},
+  {id:3, nome:'CHOPP FEST', cnpj:'', contato:'', telefone:'', email:'', endereco:'', pgto:'BOLETO 10', status:'ativo', obs:''},
+  {id:4, nome:'AMBV', cnpj:'', contato:'', telefone:'', email:'', endereco:'', pgto:'PIX', status:'ativo', obs:''},
+  {id:5, nome:'QUINKAS', cnpj:'', contato:'', telefone:'', email:'', endereco:'', pgto:'BOLETO 14', status:'ativo', obs:''},
+];
+
+// Adiciona estoque e vcto nos dados existentes
+DB.produtos_festa.forEach(p => { if(!p.estoque) p.estoque = 0; });
+DB.produtos_bar.forEach(p => { if(!p.estoque) p.estoque = 0; });
+DB.gastos.forEach((g,i) => { if(!g.vcto) g.vcto = [10,15,5,10,10,5,5,5,5,5,15,15,25,10,10,10,0,0,0,0,0][i] || 0; });
+
+// Histórico de comodatos recolhidos
+DB.comodatos_hist = [
+  {cliente:'CHURRAS PENHA', kit:'KIT CHOPEIRA 30HS', dataSaida:'2025-01-10', dataRetorno:'2025-03-15', tipo:'recolhimento', quem:'DANIEL'},
+  {cliente:'MUNDO ANIMAL PENHA', kit:'KIT CHOPEIRA SLIM', dataSaida:'2025-02-01', dataRetorno:'2025-04-20', tipo:'troca', quem:'DANIEL'},
+];
+
+// Adiciona data de saída nos comodatos ativos
+const hoje = new Date().toISOString().split('T')[0];
+DB.comodatos_ativos.forEach(c => { if(!c.dataSaida) c.dataSaida = '2025-01-15'; if(!c.qtde) c.qtde = 1; });
+
+// Equipamentos com qtde total e qtde na rua
+DB.comodatos_estoque.forEach(e => { if(!e.qtdeTotal) e.qtdeTotal = 1; if(!e.qtdeRua) e.qtdeRua = 0; });
+// Marcar qtde na rua baseado nos ativos
+DB.comodatos_ativos.forEach(a => { DB.comodatos_estoque.forEach(e => { if(a.kit && a.kit.includes(e.item.split(' ').slice(0,3).join(' '))){ e.qtdeRua = (e.qtdeRua||0)+1; } }); });
+
+let editingProdIdx = null;
+let editingProdTipo = 'festa';
+let editingFornIdx = null;
+let editingEquipIdx = null;
+let editingGastoIdx = null;
+let editingComodIdx = null;
+let recolhendoIdx = null;
+let verCliFestaIdx = null;
+
+// ── PRODUTOS ────────────────────────────────────────────────────
+function renderProdutos(tipo) {
+  const list = tipo === 'festa' ? DB.produtos_festa : DB.produtos_bar;
+  const tbody = tipo === 'festa' ? 'prodFestaBody' : 'prodBarBody';
+  document.getElementById(tbody).innerHTML = list.map((p,i) => {
+    const margem = ((p.venda - p.custo) / p.venda * 100).toFixed(1);
+    const mColor = margem > 40 ? 'var(--green)' : margem > 20 ? 'var(--amber)' : 'var(--red)';
+    const estBadge = p.estoque > 3 ? 'badge-green' : p.estoque > 0 ? 'badge-amber' : 'badge-red';
+    return `<tr>
+      <td>${p.cod}</td>
+      <td><strong>${p.prod}</strong></td>
+      <td>${p.litros}L</td>
+      <td><span class="badge ${estBadge}">${p.estoque||0} un</span></td>
+      <td style="color:var(--amber);font-weight:700">${fmt(p.venda)}</td>
+      <td style="color:var(--gray)">${fmt(p.custo)}</td>
+      <td><span style="color:${mColor};font-weight:700">${margem}%</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openEditProd('${tipo}',${i})" title="Editar">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProd('${tipo}',${i})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--gray);padding:24px">Nenhum produto cadastrado</td></tr>';
+}
+
+function openModalNovoProd() {
+  editingProdIdx = null;
+  document.getElementById('modalProdTitle').textContent = 'Novo Produto';
+  ['prodCod','prodNome','prodLitros','prodVenda','prodCusto'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('prodEstoque').value = 0;
+  document.getElementById('prodMargemCalc').textContent = '—';
+  openModal('modalProd');
+}
+
+function openEditProd(tipo, i) {
+  editingProdIdx = i;
+  editingProdTipo = tipo;
+  const list = tipo === 'festa' ? DB.produtos_festa : DB.produtos_bar;
+  const p = list[i];
+  document.getElementById('modalProdTitle').textContent = 'Editar Produto';
+  document.getElementById('prodTabela').value = tipo;
+  document.getElementById('prodCod').value = p.cod;
+  document.getElementById('prodNome').value = p.prod;
+  document.getElementById('prodLitros').value = p.litros;
+  document.getElementById('prodEstoque').value = p.estoque||0;
+  document.getElementById('prodVenda').value = p.venda;
+  document.getElementById('prodCusto').value = p.custo;
+  calcMargem();
+  openModal('modalProd');
+}
+
+function calcMargem() {
+  const v = parseFloat(document.getElementById('prodVenda').value)||0;
+  const c = parseFloat(document.getElementById('prodCusto').value)||0;
+  if(!v){ document.getElementById('prodMargemCalc').textContent = '—'; return; }
+  const m = ((v-c)/v*100).toFixed(1);
+  const col = m > 40 ? 'var(--green)' : m > 20 ? 'var(--amber)' : 'var(--red)';
+  document.getElementById('prodMargemCalc').style.color = col;
+  document.getElementById('prodMargemCalc').textContent = m + '% de margem';
+}
+
+function saveProd() {
+  const tipo = document.getElementById('prodTabela').value;
+  const list = tipo === 'festa' ? DB.produtos_festa : DB.produtos_bar;
+  const prod = {
+    cod: parseInt(document.getElementById('prodCod').value)||list.length+1,
+    prod: document.getElementById('prodNome').value,
+    litros: parseInt(document.getElementById('prodLitros').value)||0,
+    estoque: parseInt(document.getElementById('prodEstoque').value)||0,
+    venda: parseFloat(document.getElementById('prodVenda').value)||0,
+    custo: parseFloat(document.getElementById('prodCusto').value)||0,
+  };
+  if(editingProdIdx !== null && tipo === editingProdTipo) {
+    list[editingProdIdx] = prod;
+  } else {
+    list.push(prod);
+  }
+  closeModal('modalProd');
+  renderProdutos(tipo);
+  atualizarStatBarris();
+  showToast('Produto salvo!');
+}
+
+function deleteProd(tipo, i) {
+  if(!confirm('Excluir este produto?')) return;
+  if(tipo === 'festa') DB.produtos_festa.splice(i,1);
+  else DB.produtos_bar.splice(i,1);
+  renderProdutos(tipo);
+  showToast('Produto removido.');
+}
+
+function limparProdutos() {
+  if(!confirm('⚠️ Tem certeza que deseja LIMPAR TODOS os produtos das duas tabelas?
+Esta ação não pode ser desfeita!')) return;
+  DB.produtos_festa = [];
+  DB.produtos_bar = [];
+  renderProdutos('festa');
+  renderProdutos('bar');
+  atualizarStatBarris();
+  showToast('Todos os produtos foram removidos.');
+}
+
+// ── FORNECEDORES ─────────────────────────────────────────────────
+function renderFornCad() {
+  document.getElementById('fornCadBody').innerHTML = DB.fornecedores_cad.map((f,i) => {
+    const badge = f.status === 'ativo' ? 'badge-green' : 'badge-red';
+    const label = f.status === 'ativo' ? '✅ Ativo' : '❌ Inativo';
+    return `<tr>
+      <td><strong>${f.nome}</strong></td>
+      <td>${f.contato||'—'}</td>
+      <td>${f.telefone||'—'}</td>
+      <td style="font-size:12px;color:var(--gray-light)">${f.endereco||'—'}</td>
+      <td><span class="badge badge-blue">${f.pgto}</span></td>
+      <td>
+        <select onchange="toggleFornStatus(${i},this.value)" style="background:var(--dark2);border:1px solid #3A3A3A;border-radius:5px;padding:3px 7px;font-size:11px;font-weight:600;color:var(--white);cursor:pointer">
+          <option value="ativo" ${f.status==='ativo'?'selected':''}>✅ Ativo</option>
+          <option value="inativo" ${f.status==='inativo'?'selected':''}>❌ Inativo</option>
+        </select>
+      </td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openEditForn(${i})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteForn(${i})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--gray);padding:24px">Nenhum fornecedor cadastrado</td></tr>';
+}
+
+function openModalNovoForn() {
+  editingFornIdx = null;
+  document.getElementById('modalFornTitle').textContent = 'Novo Fornecedor';
+  ['fornNome','fornCnpj','fornContato','fornTelefone','fornEmail','fornEndereco','fornPgto','fornObs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fornStatus').value = 'ativo';
+  openModal('modalForn');
+}
+
+function openEditForn(i) {
+  editingFornIdx = i;
+  const f = DB.fornecedores_cad[i];
+  document.getElementById('modalFornTitle').textContent = 'Editar Fornecedor';
+  document.getElementById('fornNome').value = f.nome;
+  document.getElementById('fornCnpj').value = f.cnpj;
+  document.getElementById('fornContato').value = f.contato;
+  document.getElementById('fornTelefone').value = f.telefone;
+  document.getElementById('fornEmail').value = f.email;
+  document.getElementById('fornEndereco').value = f.endereco;
+  document.getElementById('fornPgto').value = f.pgto;
+  document.getElementById('fornStatus').value = f.status;
+  document.getElementById('fornObs').value = f.obs;
+  openModal('modalForn');
+}
+
+function saveForn() {
+  const f = {
+    id: editingFornIdx !== null ? DB.fornecedores_cad[editingFornIdx].id : DB.fornecedores_cad.length+1,
+    nome: document.getElementById('fornNome').value,
+    cnpj: document.getElementById('fornCnpj').value,
+    contato: document.getElementById('fornContato').value,
+    telefone: document.getElementById('fornTelefone').value,
+    email: document.getElementById('fornEmail').value,
+    endereco: document.getElementById('fornEndereco').value,
+    pgto: document.getElementById('fornPgto').value,
+    status: document.getElementById('fornStatus').value,
+    obs: document.getElementById('fornObs').value,
+  };
+  if(editingFornIdx !== null) DB.fornecedores_cad[editingFornIdx] = f;
+  else DB.fornecedores_cad.push(f);
+  closeModal('modalForn');
+  renderFornCad();
+  showToast('Fornecedor salvo!');
+}
+
+function toggleFornStatus(i, val) {
+  DB.fornecedores_cad[i].status = val;
+  renderFornCad();
+  showToast('Status atualizado.');
+}
+
+function deleteForn(i) {
+  if(!confirm('Excluir este fornecedor?')) return;
+  DB.fornecedores_cad.splice(i,1);
+  renderFornCad();
+  showToast('Fornecedor removido.');
+}
+
+// ── CLIENTES FESTA — VER ──────────────────────────────────────────
+function verCliFesta(i) {
+  verCliFestaIdx = i;
+  const c = DB.clientes_festa[i];
+  const fields = [
+    ['ID', c.id], ['Nome', c.cliente], ['CPF/CNPJ', c.cpf],
+    ['Endereço', c.endereco], ['Número', c.numero], ['Bairro', c.bairro],
+    ['CEP', c.cep], ['Cidade', c.cidade], ['Telefone', c.telefone],
+  ];
+  document.getElementById('verCliFestaContent').innerHTML = fields.map(([l,v]) =>
+    `<div style="background:var(--dark2);border-radius:6px;padding:10px 12px">
+      <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--gray);margin-bottom:3px">${l}</div>
+      <div style="font-size:13px;font-weight:500">${v||'—'}</div>
+    </div>`
+  ).join('');
+  document.getElementById('btnEditarDeVer').onclick = () => { closeModal('modalVerCliFesta'); editCliFesta(i); };
+  openModal('modalVerCliFesta');
+}
+
+// ── PEDIDOS STATUS ────────────────────────────────────────────────
+function alterarStatusPed(i, val) {
+  DB.pedidos[i].status = val;
+  showToast(val === 'pago' ? '✅ Pedido marcado como Pago!' : 'Status atualizado.');
+}
+
+// ── COMODATO ──────────────────────────────────────────────────────
+function renderComodato() {
+  // Resumo
+  const naRua = DB.comodatos_ativos.reduce((s,c)=>s+(c.qtde||1),0);
+  const valorRua = DB.comodatos_ativos.reduce((s,c)=>s+(c.valor||0),0);
+  const emEstoque = DB.comodatos_estoque.reduce((s,e)=>s+(e.qtdeTotal||1)-(e.qtdeRua||0),0);
+  document.getElementById('comodNaRua').textContent = naRua;
+  document.getElementById('comodNoEstoque').textContent = emEstoque;
+  document.getElementById('comodValorRua').textContent = fmt(valorRua);
+
+  // Ativos
+  document.getElementById('comodAtivoBody').innerHTML = DB.comodatos_ativos.map((c,i) =>
+    `<tr>
+      <td><strong>${c.cliente}</strong></td>
+      <td style="font-size:11px;color:var(--gray-light);max-width:280px">${c.kit}</td>
+      <td style="font-size:12px">${c.dataSaida||'—'}</td>
+      <td style="font-weight:700;color:var(--amber)">${fmt(c.valor)}</td>
+      <td><span class="badge badge-green">Na Rua</span></td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openRecolher(${i})" title="Recolher">📦</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteComod(${i})" title="Excluir">🗑️</button>
+      </td>
+    </tr>`
+  ).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Nenhum comodato ativo</td></tr>';
+
+  // Estoque
+  document.getElementById('comodEstoqueBody').innerHTML = DB.comodatos_estoque.map((e,i) => {
+    const disp = (e.qtdeTotal||1) - (e.qtdeRua||0);
+    const dispBadge = disp > 0 ? 'badge-green' : 'badge-red';
+    return `<tr>
+      <td>${e.item}</td>
+      <td style="text-align:center">${e.qtdeTotal||1}</td>
+      <td style="text-align:center"><span class="badge badge-amber">${e.qtdeRua||0}</span></td>
+      <td style="text-align:center"><span class="badge ${dispBadge}">${disp}</span></td>
+      <td>${fmt(e.valor)}</td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openEditEquip(${i})" title="Editar">✏️</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  // Histórico
+  document.getElementById('comodHistBody').innerHTML = DB.comodatos_hist.map(h =>
+    `<tr>
+      <td><strong>${h.cliente}</strong></td>
+      <td style="font-size:12px">${h.kit}</td>
+      <td>${h.dataSaida}</td>
+      <td>${h.dataRetorno}</td>
+      <td><span class="badge ${h.tipo==='troca'?'badge-amber':'badge-blue'}">${h.tipo}</span></td>
+      <td>${h.quem}</td>
+    </tr>`
+  ).join('') || '<tr><td colspan="6" style="text-align:center;color:var(--gray);padding:24px">Sem histórico</td></tr>';
+}
+
+function openModalNovoComod() {
+  const sel = document.getElementById('comodCliente');
+  sel.innerHTML = [
+    ...DB.clientes_bares.map(c => `<option value="${c.nome}">${c.nome}</option>`),
+    ...DB.clientes_festa.map(c => `<option value="${c.cliente}">${c.cliente}</option>`),
+  ].join('');
+  document.getElementById('comodDataSaida').value = new Date().toISOString().split('T')[0];
+  openModal('modalNovoComod');
+}
+
+function saveNovoComod() {
+  DB.comodatos_ativos.push({
+    cliente: document.getElementById('comodCliente').value,
+    kit: document.getElementById('comodKit').value,
+    valor: parseFloat(document.getElementById('comodValor').value)||0,
+    qtde: parseInt(document.getElementById('comodQtde').value)||1,
+    dataSaida: document.getElementById('comodDataSaida').value,
+    obs: document.getElementById('comodObs').value,
+  });
+  closeModal('modalNovoComod');
+  renderComodato();
+  showToast('Comodato registrado!');
+}
+
+function openRecolher(i) {
+  recolhendoIdx = i;
+  const c = DB.comodatos_ativos[i];
+  document.getElementById('recolherInfoCliente').innerHTML =
+    `<strong>${c.cliente}</strong><br><span style="font-size:12px">${c.kit}</span><br><span style="color:var(--amber)">Saiu em: ${c.dataSaida||'—'}</span>`;
+  document.getElementById('recolherData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('recolherQtde').value = c.qtde||1;
+  document.getElementById('recolherObs').value = '';
+  openModal('modalRecolher');
+}
+
+function saveRecolher() {
+  const data = document.getElementById('recolherData').value;
+  const qtde = parseInt(document.getElementById('recolherQtde').value)||1;
+  const tipo = document.getElementById('recolherTipo').value;
+  const quem = document.getElementById('recolherQuem').value;
+  const obs  = document.getElementById('recolherObs').value;
+  if(!data || !quem){ showToast('Preencha a data e quem recolheu!'); return; }
+  const c = DB.comodatos_ativos[recolhendoIdx];
+  DB.comodatos_hist.push({ cliente:c.cliente, kit:c.kit, dataSaida:c.dataSaida, dataRetorno:data, tipo, quem, obs });
+  if(tipo !== 'parcial') DB.comodatos_ativos.splice(recolhendoIdx, 1);
+  closeModal('modalRecolher');
+  renderComodato();
+  showToast('Recolhimento registrado!');
+}
+
+function deleteComod(i) {
+  if(!confirm('Excluir este comodato?')) return;
+  DB.comodatos_ativos.splice(i,1);
+  renderComodato();
+}
+
+function openModalNovoEquip() { editingEquipIdx = null; document.getElementById('modalEquipTitle').textContent='Novo Equipamento'; document.getElementById('equipDesc').value=''; document.getElementById('equipValor').value=''; document.getElementById('equipQtde').value=1; openModal('modalEquip'); }
+function openEditEquip(i) { editingEquipIdx=i; const e=DB.comodatos_estoque[i]; document.getElementById('modalEquipTitle').textContent='Editar Equipamento'; document.getElementById('equipDesc').value=e.item; document.getElementById('equipValor').value=e.valor; document.getElementById('equipQtde').value=e.qtdeTotal||1; openModal('modalEquip'); }
+function saveEquip() {
+  const eq = { item:document.getElementById('equipDesc').value, valor:parseFloat(document.getElementById('equipValor').value)||0, qtdeTotal:parseInt(document.getElementById('equipQtde').value)||1, qtdeRua:0 };
+  if(editingEquipIdx!==null){ eq.qtdeRua=DB.comodatos_estoque[editingEquipIdx].qtdeRua||0; DB.comodatos_estoque[editingEquipIdx]=eq; } else DB.comodatos_estoque.push(eq);
+  closeModal('modalEquip'); renderComodato(); showToast('Equipamento salvo!');
+}
+
+// ── GASTOS ────────────────────────────────────────────────────────
+function renderGastos() {
+  const totalGeral = DB.gastos.reduce((s,g) => s + g.valor, 0);
+  const fixo = DB.gastos.filter(g=>g.tipo==='FIXA').reduce((s,g)=>s+g.valor,0);
+  const variavel = DB.gastos.filter(g=>g.tipo==='VARIÁVEL').reduce((s,g)=>s+g.valor,0);
+  document.getElementById('totalFixo').textContent = fmt(fixo);
+  document.getElementById('totalVar').textContent = fmt(variavel);
+
+  const hoje = new Date();
+  const diaHoje = hoje.getDate();
+  const mesHoje = hoje.getMonth();
+  const anoHoje = hoje.getFullYear();
+
+  document.getElementById('gastosBody').innerHTML = DB.gastos.map((g,i) => {
+    const pct = (g.valor / totalGeral * 100).toFixed(1);
+    const vcto = g.vcto || 0;
+    let proxVcto = '—'; let alertClass = '';
+    if(vcto) {
+      let dt = new Date(anoHoje, mesHoje, vcto);
+      if(dt < hoje) dt = new Date(anoHoje, mesHoje+1, vcto);
+      const diff = Math.ceil((dt - hoje) / 86400000);
+      proxVcto = `dia ${vcto}`;
+      if(diff <= 1) alertClass = 'color:var(--red);font-weight:700';
+      else if(diff <= 2) alertClass = 'color:var(--amber);font-weight:700';
+    }
+    return `<tr>
+      <td><strong>${g.item}</strong></td>
+      <td><span class="badge ${g.tipo==='FIXA' ? 'badge-blue':'badge-amber'}">${g.tipo}</span></td>
+      <td style="font-weight:600">${fmt(g.valor)}</td>
+      <td><span class="badge badge-green">${g.pgto}</span></td>
+      <td style="text-align:center;font-size:12px">${vcto ? 'Dia '+vcto : '—'}</td>
+      <td style="font-size:12px;${alertClass}">${vcto ? '📅 '+proxVcto : '—'}</td>
+      <td>
+        <div style="display:flex;align-items:center;gap:6px">
+          <div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <span style="font-size:11px;color:var(--gray);width:32px">${pct}%</span>
+        </div>
+      </td>
+      <td>
+        <button class="btn btn-ghost btn-sm" onclick="openEditGasto(${i})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteGasto(${i})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openEditGasto(i) {
+  editingGastoIdx = i;
+  const g = DB.gastos[i];
+  document.getElementById('modalGastoTitle').textContent = 'Editar Gasto';
+  document.getElementById('gastoItem').value = g.item;
+  document.getElementById('gastoTipo').value = g.tipo;
+  document.getElementById('gastoValor').value = g.valor;
+  document.getElementById('gastoPgto').value = g.pgto;
+  document.getElementById('gastoVcto').value = g.vcto||'';
+  openModal('modalGasto');
+}
+
+function saveGasto() {
+  const g = {
+    item: document.getElementById('gastoItem').value,
+    tipo: document.getElementById('gastoTipo').value,
+    valor: parseFloat(document.getElementById('gastoValor').value)||0,
+    pgto: document.getElementById('gastoPgto').value,
+    vcto: parseInt(document.getElementById('gastoVcto').value)||0,
+  };
+  if(editingGastoIdx !== null) DB.gastos[editingGastoIdx] = g;
+  else DB.gastos.push(g);
+  closeModal('modalGasto');
+  renderGastos();
+  showToast('Gasto salvo!');
+}
+
+function deleteGasto(i) {
+  if(!confirm('Excluir este gasto?')) return;
+  DB.gastos.splice(i,1);
+  renderGastos();
+}
+
+// ── DASHBOARD — ESTOQUE + ALERTAS ────────────────────────────────
+function atualizarStatBarris() {
+  const totalBarris = DB.produtos_festa.reduce((s,p)=>s+(p.estoque||0),0);
+  document.getElementById('stat-barris').textContent = totalBarris;
+  const pedAbertos = DB.pedidos.filter(p=>!p.status||p.status==='aberto').length;
+  document.getElementById('stat-abertos').textContent = pedAbertos;
+  // Contas a vencer em 2 dias
+  const diaHoje = new Date().getDate();
+  const vencendo = DB.gastos.filter(g => {
+    if(!g.vcto) return false;
+    const diff = g.vcto - diaHoje;
+    return diff >= 0 && diff <= 2;
+  });
+  document.getElementById('stat-vencer').textContent = vencendo.length;
+  if(vencendo.length > 0) {
+    document.getElementById('stat-vencer').parentElement.classList.remove('red');
+    document.getElementById('stat-vencer').parentElement.classList.add(vencendo.some(g=>g.vcto===diaHoje)?'red':'amber');
+  }
+}
+
+
+// ─── TOGGLE SENHA ────────────────────────────────────────────────────────────
+function toggleSenha(inputId, svgId) {
+  const input = document.getElementById(inputId);
+  const svg   = document.getElementById(svgId);
+  const show  = input.type === 'password';
+  input.type  = show ? 'text' : 'password';
+  svg.style.color = show ? '#F5A623' : '#888';
+  // Troca ícone via atributo data
+  const ns = 'http://www.w3.org/2000/svg';
+  // Remove filhos antigos
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  if(show) {
+    // Olho com risco (senha visível)
+    const p1 = document.createElementNS(ns,'path');
+    p1.setAttribute('d','M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94');
+    const p2 = document.createElementNS(ns,'path');
+    p2.setAttribute('d','M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19');
+    const ln = document.createElementNS(ns,'line');
+    ln.setAttribute('x1','1'); ln.setAttribute('y1','1'); ln.setAttribute('x2','23'); ln.setAttribute('y2','23');
+    const ci = document.createElementNS(ns,'circle');
+    ci.setAttribute('cx','12'); ci.setAttribute('cy','12'); ci.setAttribute('r','3');
+    svg.appendChild(p1); svg.appendChild(p2); svg.appendChild(ln); svg.appendChild(ci);
+  } else {
+    // Olho aberto (ocultar senha)
+    const p = document.createElementNS(ns,'path');
+    p.setAttribute('d','M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z');
+    const ci = document.createElementNS(ns,'circle');
+    ci.setAttribute('cx','12'); ci.setAttribute('cy','12'); ci.setAttribute('r','3');
+    svg.appendChild(p); svg.appendChild(ci);
+  }
+}
+
+// ─── LOGIN / LOGOUT ──────────────────────────────────────────────────────────
+let currentRole = 'admin';
+
+function selectRole(role) {
+  currentRole = role;
+  const pillAdmin = document.getElementById('pillAdmin');
+  const pillOp    = document.getElementById('pillOp');
+  if (role === 'admin') {
+    pillAdmin.style.cssText += ';border-color:#F5A623;background:rgba(245,166,35,.1);color:#F5A623';
+    pillOp.style.cssText    += ';border-color:#3A3A3A;background:#252525;color:#888';
+  } else {
+    pillOp.style.cssText    += ';border-color:#1E88E5;background:rgba(30,136,229,.1);color:#1E88E5';
+    pillAdmin.style.cssText += ';border-color:#3A3A3A;background:#252525;color:#888';
+  }
+}
+
+const USERS = {
+  admin:    { senha: 'admin123', role: 'admin',    label: 'Admin' },
+  operador: { senha: 'op123',    role: 'operador', label: 'Operador' },
+};
+
+function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err  = document.getElementById('loginErr');
+
+  const found = USERS[user];
+
+  // Valida só usuário + senha (sem exigir pill correto)
+  if (!found || found.senha !== pass) {
+    err.style.display = 'block';
+    document.getElementById('loginPass').style.borderColor = '#E53935';
+    return;
+  }
+  err.style.display = 'none';
+  document.getElementById('loginPass').style.borderColor = '#3A3A3A';
+
+  // Sincroniza o pill com o role real do usuário
+  currentRole = found.role;
+
+  // Atualiza sidebar
+  document.getElementById('sidebarUser').textContent = user;
+  const badge = document.getElementById('sidebarRoleBadge');
+  if (found.role === 'admin') {
+    badge.textContent = '👑 Admin';
+    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(245,166,35,.15);color:#F5A623';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+  } else {
+    badge.textContent = '👤 Operador';
+    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(30,136,229,.15);color:#1E88E5';
+    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+  }
+
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  renderDashboard();
+  atualizarStatBarris();
+}
+
+function doLogout() {
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loginErr').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  // Restaura nav items admin
+  document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+  selectRole('admin');
+}
+
+// ══════════════════════════════════════════════════════════════
+// SUPABASE — Configuração
+// ══════════════════════════════════════════════════════════════
+const SUPABASE_URL = 'https://nmefykzbphcmktuhccf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Yzd_QMvobfoTCBimyvvSIQ_Y0Zks_K0';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ══════════════════════════════════════════════════════════════
+// LOGIN — integrado com Supabase
+// ══════════════════════════════════════════════════════════════
+async function doLogin() {
+  const user = document.getElementById('loginUser').value.trim().toLowerCase();
+  const pass = document.getElementById('loginPass').value;
+  const err  = document.getElementById('loginErr');
+
+  try {
+    // Busca usuário na tabela usuarios
+    const { data, error } = await sb
+      .from('usuarios')
+      .select('*')
+      .eq('usuario', user)
+      .eq('senha_hash', pass)
+      .eq('ativo', true)
+      .single();
+
+    if (error || !data) {
+      // Fallback: tenta com usuários locais (durante transição)
+      const local = USERS[user];
+      if (!local || local.senha !== pass) {
+        err.style.display = 'block';
+        document.getElementById('loginPass').style.borderColor = '#E53935';
+        return;
+      }
+      currentRole = local.role;
+    } else {
+      currentRole = data.role || data.perfil || 'operador';
+      // Atualiza último acesso
+      await sb.from('usuarios').update({ ultimo_acesso: new Date().toISOString() }).eq('id', data.id);
+    }
+
+    err.style.display = 'none';
+    document.getElementById('loginPass').style.borderColor = '#3A3A3A';
+
+    // Atualiza sidebar
+    document.getElementById('sidebarUser').textContent = user;
+    const badge = document.getElementById('sidebarRoleBadge');
+    if (currentRole === 'admin') {
+      badge.textContent = '👑 Admin';
+      badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(245,166,35,.15);color:#F5A623';
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
+    } else {
+      badge.textContent = '👤 Operador';
+      badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(30,136,229,.15);color:#1E88E5';
+      document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+    }
+
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+
+    // Carrega dados do Supabase
+    await carregarTodosDados();
+    renderDashboard();
+    atualizarStatBarris();
+
+    // Liga realtime
+    ligarRealtime();
+
+  } catch(e) {
+    console.error('Login error:', e);
+    err.style.display = 'block';
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// CARREGAR DADOS DO SUPABASE
+// ══════════════════════════════════════════════════════════════
+async function carregarTodosDados() {
+  mostrarLoading(true);
+  try {
+    const [cliFesta, cliBares, fornCad, prods, orcs, peds, equips, comods, gastos, alertas] = await Promise.all([
+      sb.from('clientes').select('*').eq('tipo','festa').eq('ativo',true).order('nome'),
+      sb.from('clientes').select('*').eq('tipo','bar').eq('ativo',true).order('nome'),
+      sb.from('fornecedores').select('*').order('nome'),
+      sb.from('produtos').select('*').eq('ativo',true).order('nome'),
+      sb.from('orcamentos').select('*').order('created_at', {ascending:false}).limit(50),
+      sb.from('pedidos').select('*').order('created_at', {ascending:false}).limit(50),
+      sb.from('equipamentos').select('*').eq('ativo',true).order('descricao'),
+      sb.from('comodatos').select('*').eq('status','ativo').order('data_saida', {ascending:false}),
+      sb.from('gastos_fixos').select('*').eq('ativo',true).order('descricao'),
+      sb.from('alertas').select('*').eq('lido',false).order('created_at',{ascending:false}).limit(20),
+    ]);
+
+    // Popula DB local com dados do Supabase
+    if (cliFesta.data)  { DB.clientes_festa   = cliFesta.data.map(mapClienteFesta); }
+    if (cliBares.data)  { DB.clientes_bares   = cliBares.data.map(mapClienteBar); }
+    if (fornCad.data)   { DB.fornecedores_cad = fornCad.data; }
+    if (prods.data)     {
+      DB.produtos_festa = prods.data.map(p => ({...p, cod:p.codigo, prod:p.nome, venda:p.preco_festa, estoque:p.estoque_atual}));
+      DB.produtos_bar   = prods.data.map(p => ({...p, cod:p.codigo, prod:p.nome, venda:p.preco_bar,   estoque:p.estoque_atual}));
+    }
+    if (orcs.data)      { DB.orcamentos = orcs.data.map(mapOrcamento); }
+    if (peds.data)      { DB.pedidos    = peds.data.map(mapPedido); }
+    if (equips.data)    { DB.comodatos_estoque = equips.data.map(e => ({...e, item:e.descricao, qtdeTotal:e.qtde_total, qtdeRua:e.qtde_rua})); }
+    if (comods.data)    { DB.comodatos_ativos  = comods.data.map(c => ({...c, kit:c.kit_descricao, dataSaida:c.data_saida})); }
+    if (gastos.data)    { DB.gastos = gastos.data.map(g => ({...g, item:g.descricao, vcto:g.dia_vencimento})); }
+    if (alertas.data)   { DB._alertas = alertas.data; atualizarBadgeAlertas(alertas.data.length); }
+
+    showToast('✅ Dados carregados do Supabase');
+  } catch(e) {
+    console.error('Erro ao carregar dados:', e);
+    showToast('⚠️ Usando dados locais (sem conexão)');
+  } finally {
+    mostrarLoading(false);
+  }
+}
+
+function mapClienteFesta(c) {
+  return { id: c.id, cpf: c.cpf_cnpj, cliente: c.nome, endereco: c.endereco||'', numero: c.numero||'', bairro: c.bairro||'', cep: c.cep||'', cidade: c.cidade||'', telefone: c.telefone||'' };
+}
+function mapClienteBar(c) {
+  return { cod: c.id, seg: c.segmento||'BAR', cnpj: c.cpf_cnpj||'', nome: c.nome, resp: c.responsavel||'', contato: c.telefone||'', email: c.email||'', vendedor: c.vendedor||'DANIEL', pagto: c.forma_pgto||'', obs: c.obs||'' };
+}
+function mapOrcamento(o) {
+  return { num: o.numero, idCli: o.cliente_id, tipo: o.tipo_cliente||'festa', data: o.data_emissao, validade: o.data_validade, itens: [], frete: o.frete||0, desc_global: o.desc_global||0, obs_entrega: o.obs_entrega||'', status: o.status, _id: o.id };
+}
+function mapPedido(p) {
+  return { num: p.numero, idCli: p.cliente_id, tipo: p.tipo_cliente||'bar', cliente: '', emissao: p.data_emissao, entrega: p.data_entrega, vendedor: p.vendedor||'DANIEL', pagto: p.forma_pgto||'', endEntrega: p.end_entrega||'', periodo: p.periodo_entrega||'', frete: p.frete||0, status: p.status_pagto||'aberto', itens: [], _id: p.id };
+}
+
+// ══════════════════════════════════════════════════════════════
+// SALVAR NO SUPABASE — wrappers para cada módulo
+// ══════════════════════════════════════════════════════════════
+
+// Clientes
+async function sbSaveCliente(dados, tipo) {
+  const payload = tipo === 'festa' ? {
+    tipo:'festa', nome:dados.cliente, cpf_cnpj:dados.cpf, endereco:dados.endereco,
+    numero:dados.numero, bairro:dados.bairro, cep:dados.cep, cidade:dados.cidade, telefone:dados.telefone
+  } : {
+    tipo:'bar', nome:dados.nome, cpf_cnpj:dados.cnpj, responsavel:dados.resp,
+    telefone:dados.contato, email:dados.email, vendedor:dados.vendedor, forma_pgto:dados.pagto,
+    segmento:dados.seg, obs:dados.obs
+  };
+  if(dados._id) {
+    await sb.from('clientes').update(payload).eq('id', dados._id);
+  } else {
+    await sb.from('clientes').insert(payload);
+  }
+}
+
+// Produtos
+async function sbSaveProduto(p) {
+  const payload = { codigo:p.cod, nome:p.prod, litros:p.litros, custo:p.custo, preco_festa:p.venda, preco_bar:p.venda, estoque_atual:p.estoque||0 };
+  if(p.id) await sb.from('produtos').update(payload).eq('id', p.id);
+  else await sb.from('produtos').insert(payload);
+}
+
+// Orçamentos
+async function sbSaveOrcamento(o) {
+  const payload = {
+    cliente_id: o.idCli, tipo_cliente: o.tipo,
+    data_emissao: o.data, data_validade: o.validade,
+    status: o.status||'em_aberto', frete: o.frete||0,
+    desc_global: o.desc_global||0, obs_entrega: o.obs_entrega||'',
+    obs_interna: o.obs_int||'', total: calcOrcTotalVal(o)
+  };
+  let orcId = o._id;
+  if(orcId) {
+    await sb.from('orcamentos').update(payload).eq('id', orcId);
+    await sb.from('orcamento_itens').delete().eq('orcamento_id', orcId);
+  } else {
+    const { data } = await sb.from('orcamentos').insert(payload).select().single();
+    orcId = data?.id;
+  }
+  if(orcId && o.itens?.length) {
+    const itens = o.itens.map(it => ({
+      orcamento_id: orcId, descricao: it.desc, qtde: it.qtde,
+      preco_unit: it.preco, desconto_perc: it.desc_perc||0,
+      total_item: it.preco * it.qtde * (1-(it.desc_perc||0)/100)
+    }));
+    await sb.from('orcamento_itens').insert(itens);
+  }
+  return orcId;
+}
+
+// Aprovar orçamento → vira pedido (via trigger no banco)
+async function aprovarOrcamento(idx) {
+  const o = DB.orcamentos[idx];
+  if(!o._id) { showToast('Salve o orçamento primeiro'); return; }
+  if(!confirm(`Aprovar orçamento #${o.num}? Será criado um pedido automaticamente.`)) return;
+  await sb.from('orcamentos').update({ status:'aprovado' }).eq('id', o._id);
+  showToast('✅ Orçamento aprovado! Pedido criado automaticamente.');
+  await carregarTodosDados();
+  renderOrcTable();
+  renderPedTable();
+}
+
+// Pedidos — atualizar status
+async function alterarStatusPed(i, val) {
+  DB.pedidos[i].status = val;
+  const p = DB.pedidos[i];
+  if(p._id) {
+    await sb.from('pedidos').update({ status_pagto: val }).eq('id', p._id);
+  }
+  showToast(val === 'pago' ? '✅ Pedido marcado como Pago!' : 'Status atualizado.');
+}
+
+// Fornecedores
+async function sbSaveForn(f) {
+  const payload = { nome:f.nome, cnpj:f.cnpj, contato:f.contato, telefone:f.telefone, email:f.email, endereco:f.endereco, forma_pgto:f.pgto, status:f.status, obs:f.obs };
+  if(f.id) await sb.from('fornecedores').update(payload).eq('id', f.id);
+  else await sb.from('fornecedores').insert(payload);
+}
+
+// Gastos
+async function sbSaveGasto(g) {
+  const payload = { descricao:g.item, tipo:g.tipo, valor:g.valor, forma_pgto:g.pgto, dia_vencimento:g.vcto||null };
+  if(g.id) await sb.from('gastos_fixos').update(payload).eq('id', g.id);
+  else await sb.from('gastos_fixos').insert(payload);
+}
+
+// Comodatos
+async function sbSaveComodato(c) {
+  await sb.from('comodatos').insert({
+    cliente_nome: c.cliente, kit_descricao: c.kit,
+    valor: c.valor, qtde: c.qtde||1,
+    data_saida: c.dataSaida, obs: c.obs, status:'ativo'
+  });
+}
+
+async function sbRecolherComodato(comodId, dados) {
+  await sb.from('comodatos').update({
+    status: dados.tipo === 'parcial' ? 'ativo' : 'recolhido',
+    tipo_retorno: dados.tipo, data_retorno: dados.data,
+    quem_recolheu: dados.quem, obs: dados.obs
+  }).eq('id', comodId);
+}
+
+// Equipamentos
+async function sbSaveEquip(e) {
+  const payload = { descricao:e.item, valor:e.valor, qtde_total:e.qtdeTotal||1, qtde_rua:e.qtdeRua||0 };
+  if(e.id) await sb.from('equipamentos').update(payload).eq('id', e.id);
+  else await sb.from('equipamentos').insert(payload);
+}
+
+// ══════════════════════════════════════════════════════════════
+// ALERTAS — badge no topbar
+// ══════════════════════════════════════════════════════════════
+function atualizarBadgeAlertas(n) {
+  let badge = document.getElementById('alertaBadge');
+  if(!badge) {
+    const topbar = document.querySelector('.topbar-actions');
+    badge = document.createElement('div');
+    badge.id = 'alertaBadge';
+    badge.style.cssText = 'position:relative;cursor:pointer';
+    badge.innerHTML = `<span style="font-size:18px" onclick="verAlertas()">🔔</span><span id="alertaCount" style="position:absolute;top:-4px;right:-6px;background:var(--red);color:#fff;border-radius:99px;font-size:10px;font-weight:700;padding:1px 5px;display:none">0</span>`;
+    topbar.insertBefore(badge, topbar.firstChild);
+  }
+  const count = document.getElementById('alertaCount');
+  if(n > 0) { count.textContent = n; count.style.display = 'block'; }
+  else count.style.display = 'none';
+}
+
+function verAlertas() {
+  const alerts = DB._alertas || [];
+  if(!alerts.length) { showToast('Sem alertas novos ✅'); return; }
+  const msg = alerts.slice(0,5).map(a => `• ${a.mensagem}`).join('
+');
+  alert('🔔 Alertas:
+
+' + msg);
+}
+
+// ══════════════════════════════════════════════════════════════
+// REALTIME — escuta mudanças em tempo real
+// ══════════════════════════════════════════════════════════════
+function ligarRealtime() {
+  sb.channel('dochopp-realtime')
+    .on('postgres_changes', { event:'*', schema:'public', table:'pedidos' }, () => {
+      sb.from('pedidos').select('*').order('created_at',{ascending:false}).limit(50)
+        .then(({ data }) => { if(data) { DB.pedidos = data.map(mapPedido); renderPedTable(); atualizarStatBarris(); } });
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'orcamentos' }, () => {
+      sb.from('orcamentos').select('*').order('created_at',{ascending:false}).limit(50)
+        .then(({ data }) => { if(data) { DB.orcamentos = data.map(mapOrcamento); renderOrcTable(); } });
+    })
+    .on('postgres_changes', { event:'*', schema:'public', table:'produtos' }, () => {
+      sb.from('produtos').select('*').eq('ativo',true)
+        .then(({ data }) => {
+          if(data) {
+            DB.produtos_festa = data.map(p => ({...p, cod:p.codigo, prod:p.nome, venda:p.preco_festa, estoque:p.estoque_atual}));
+            DB.produtos_bar   = data.map(p => ({...p, cod:p.codigo, prod:p.nome, venda:p.preco_bar, estoque:p.estoque_atual}));
+            atualizarStatBarris();
+          }
+        });
+    })
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'alertas' }, (payload) => {
+      DB._alertas = DB._alertas || [];
+      DB._alertas.unshift(payload.new);
+      atualizarBadgeAlertas(DB._alertas.filter(a=>!a.lido).length);
+      showToast('🔔 ' + payload.new.mensagem);
+    })
+    .subscribe();
+}
+
+// ══════════════════════════════════════════════════════════════
+// LOADING OVERLAY
+// ══════════════════════════════════════════════════════════════
+function mostrarLoading(show) {
+  let el = document.getElementById('loadingOverlay');
+  if(!el) {
+    el = document.createElement('div');
+    el.id = 'loadingOverlay';
+    el.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9998;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px';
+    el.innerHTML = '<div style="width:40px;height:40px;border:3px solid #333;border-top-color:#F5A623;border-radius:50%;animation:spin 1s linear infinite"></div><div style="color:#F5A623;font-size:13px;font-weight:600">Carregando dados...</div>';
+    const style = document.createElement('style');
+    style.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(el);
+  }
+  el.style.display = show ? 'flex' : 'none';
+}
+
+// ══════════════════════════════════════════════════════════════
+// SOBRESCREVE FUNÇÕES DE SAVE PARA PERSISTIR NO SUPABASE
+// ══════════════════════════════════════════════════════════════
+const _saveOrcOriginal = saveOrc;
+window.saveOrc = async function() {
+  _saveOrcOriginal();
+  const o = DB.orcamentos[DB.orcamentos.length-1];
+  try { await sbSaveOrcamento(o); showToast('💾 Orçamento salvo no banco!'); }
+  catch(e) { console.error(e); showToast('⚠️ Salvo localmente apenas'); }
+};
+
+const _saveCliFOriginal = saveCliFesta;
+window.saveCliFesta = async function() {
+  _saveCliFOriginal();
+  const c = DB.clientes_festa[DB.clientes_festa.length-1];
+  try { await sbSaveCliente(c, 'festa'); showToast('💾 Cliente salvo no banco!'); }
+  catch(e) { console.error(e); }
+};
+
+const _saveCliBarOriginal = saveCliBar;
+window.saveCliBar = async function() {
+  _saveCliBarOriginal();
+  const c = DB.clientes_bares[DB.clientes_bares.length-1];
+  try { await sbSaveCliente(c, 'bar'); showToast('💾 Cliente salvo no banco!'); }
+  catch(e) { console.error(e); }
+};
+
+const _saveFornOriginal = saveForn;
+window.saveForn = async function() {
+  _saveFornOriginal();
+  const f = DB.fornecedores_cad[DB.fornecedores_cad.length-1];
+  try { await sbSaveForn(f); showToast('💾 Fornecedor salvo no banco!'); }
+  catch(e) { console.error(e); }
+};
+
+const _saveGastoOriginal = saveGasto;
+window.saveGasto = async function() {
+  _saveGastoOriginal();
+  const g = DB.gastos[DB.gastos.length-1];
+  try { await sbSaveGasto(g); showToast('💾 Gasto salvo no banco!'); }
+  catch(e) { console.error(e); }
+};
+
+const _saveEquipOriginal = saveEquip;
+window.saveEquip = async function() {
+  _saveEquipOriginal();
+  const e = DB.comodatos_estoque[DB.comodatos_estoque.length-1];
+  try { await sbSaveEquip(e); showToast('💾 Equipamento salvo no banco!'); }
+  catch(e2) { console.error(e2); }
+};
+
+const _saveNovoComodOriginal = saveNovoComod;
+window.saveNovoComod = async function() {
+  _saveNovoComodOriginal();
+  const c = DB.comodatos_ativos[DB.comodatos_ativos.length-1];
+  try { await sbSaveComodato(c); showToast('💾 Comodato salvo no banco!'); }
+  catch(e) { console.error(e); }
+};
+
+// Adiciona botão Aprovar nos orçamentos
+const _renderOrcOriginal = renderOrcTable;
+window.renderOrcTable = function() {
+  _renderOrcOriginal();
+  // Adiciona coluna status e botão aprovar
+  document.querySelectorAll('#orcTableBody tr').forEach((tr, i) => {
+    const o = DB.orcamentos[i];
+    if(!o) return;
+    const statusBadge = {
+      'em_aberto': '<span class="badge badge-blue">Em Aberto</span>',
+      'aprovado':  '<span class="badge badge-green">Aprovado</span>',
+      'reprovado': '<span class="badge badge-red">Reprovado</span>',
+      'expirado':  '<span class="badge badge-amber">Expirado</span>',
+    }[o.status||'em_aberto'] || '';
+    const tdAcoes = tr.querySelector('td:last-child');
+    if(tdAcoes && o.status !== 'aprovado') {
+      tdAcoes.innerHTML += ` <button class="btn btn-success btn-sm" onclick="aprovarOrcamento(${i})" title="Aprovar">✅</button>`;
+    }
+  });
+};
+
+// ══════════════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+  const el = document.getElementById('currentDate');
+  if(el) el.textContent = new Date().toLocaleDateString('pt-BR');
+  // Não carrega dados ainda — aguarda login
+});
+</script>
+
+<!-- MODAL VISUALIZAR CLIENTE FESTA -->
+<div class="modal-overlay" id="modalVerCliFesta">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <h3>👁️ Dados do Cliente</h3>
+      <button class="modal-close" onclick="closeModal('modalVerCliFesta')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px" id="verCliFestaContent"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalVerCliFesta')">Fechar</button>
+      <button class="btn btn-primary" id="btnEditarDeVer">✏️ Editar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR PRODUTO -->
+<div class="modal-overlay" id="modalProd">
+  <div class="modal" style="max-width:560px">
+    <div class="modal-head">
+      <h3 id="modalProdTitle">Novo Produto</h3>
+      <button class="modal-close" onclick="closeModal('modalProd')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Tabela</label>
+          <select id="prodTabela"><option value="festa">Festa</option><option value="bar">Bar</option></select>
+        </div>
+        <div class="field"><label>Código</label><input type="number" id="prodCod"></div>
+        <div class="field span2"><label>Nome do Produto</label><input type="text" id="prodNome"></div>
+        <div class="field"><label>Litros</label><input type="number" id="prodLitros"></div>
+        <div class="field"><label>Estoque Atual</label><input type="number" id="prodEstoque" value="0"></div>
+        <div class="field"><label>Preço de Venda (R$)</label><input type="number" id="prodVenda" step="0.01" oninput="calcMargem()"></div>
+        <div class="field"><label>Custo Barril (R$)</label><input type="number" id="prodCusto" step="0.01" oninput="calcMargem()"></div>
+        <div class="field span2">
+          <label>Margem calculada</label>
+          <div style="background:var(--dark2);border:1px solid #3A3A3A;border-radius:6px;padding:9px 12px;font-weight:700" id="prodMargemCalc">—</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalProd')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProd()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR FORNECEDOR -->
+<div class="modal-overlay" id="modalForn">
+  <div class="modal" style="max-width:620px">
+    <div class="modal-head">
+      <h3 id="modalFornTitle">Novo Fornecedor</h3>
+      <button class="modal-close" onclick="closeModal('modalForn')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Nome / Razão Social</label><input type="text" id="fornNome"></div>
+        <div class="field"><label>CNPJ</label><input type="text" id="fornCnpj"></div>
+        <div class="field"><label>Contato (Nome)</label><input type="text" id="fornContato"></div>
+        <div class="field"><label>Telefone</label><input type="text" id="fornTelefone"></div>
+        <div class="field"><label>E-mail</label><input type="text" id="fornEmail"></div>
+        <div class="field span2"><label>Endereço</label><input type="text" id="fornEndereco"></div>
+        <div class="field"><label>Forma de Pagamento</label><input type="text" id="fornPgto"></div>
+        <div class="field"><label>Status</label>
+          <select id="fornStatus">
+            <option value="ativo">✅ Ativo</option>
+            <option value="inativo">❌ Inativo</option>
+          </select>
+        </div>
+        <div class="field span2"><label>Observações</label><textarea id="fornObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalForn')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveForn()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO COMODATO -->
+<div class="modal-overlay" id="modalNovoComod">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-head">
+      <h3>Novo Comodato</h3>
+      <button class="modal-close" onclick="closeModal('modalNovoComod')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Cliente</label>
+          <select id="comodCliente"></select>
+        </div>
+        <div class="field"><label>Data de Saída</label><input type="date" id="comodDataSaida"></div>
+        <div class="field span2"><label>Kit / Equipamento</label><input type="text" id="comodKit"></div>
+        <div class="field"><label>Valor do Comodato (R$)</label><input type="number" id="comodValor" step="0.01"></div>
+        <div class="field"><label>Qtde de Itens</label><input type="number" id="comodQtde" value="1"></div>
+        <div class="field span2"><label>Observações</label><textarea id="comodObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalNovoComod')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveNovoComod()">💾 Registrar Saída</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECOLHER COMODATO -->
+<div class="modal-overlay" id="modalRecolher">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-head">
+      <h3>📦 Registrar Recolhimento</h3>
+      <button class="modal-close" onclick="closeModal('modalRecolher')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="recolherInfoCliente" style="background:var(--dark2);border-radius:8px;padding:12px;margin-bottom:16px;font-size:13px;color:var(--gray-light)"></div>
+      <div class="form-grid">
+        <div class="field"><label>Data de Retorno</label><input type="date" id="recolherData"></div>
+        <div class="field"><label>Qtde Recolhida</label><input type="number" id="recolherQtde" value="1" min="1"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="recolherTipo">
+            <option value="recolhimento">Recolhimento Total</option>
+            <option value="troca">Troca (Bar)</option>
+            <option value="parcial">Recolhimento Parcial</option>
+          </select>
+        </div>
+        <div class="field"><label>Quem Recolheu</label><input type="text" id="recolherQuem" value="DANIEL"></div>
+        <div class="field span2"><label>Observações</label><textarea id="recolherObs" rows="2"></textarea></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalRecolher')">Cancelar</button>
+      <button class="btn btn-success" onclick="saveRecolher()">✅ Confirmar Recolhimento</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO EQUIPAMENTO -->
+<div class="modal-overlay" id="modalEquip">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="modalEquipTitle">Novo Equipamento</h3>
+      <button class="modal-close" onclick="closeModal('modalEquip')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Descrição</label><input type="text" id="equipDesc"></div>
+        <div class="field"><label>Valor Unitário (R$)</label><input type="number" id="equipValor" step="0.01"></div>
+        <div class="field"><label>Qtde em Estoque</label><input type="number" id="equipQtde" value="1"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalEquip')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveEquip()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOVO/EDITAR GASTO -->
+<div class="modal-overlay" id="modalGasto">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-head">
+      <h3 id="modalGastoTitle">Novo Gasto</h3>
+      <button class="modal-close" onclick="closeModal('modalGasto')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field span2"><label>Descrição</label><input type="text" id="gastoItem"></div>
+        <div class="field"><label>Tipo</label>
+          <select id="gastoTipo"><option value="FIXA">Fixo</option><option value="VARIÁVEL">Variável</option></select>
+        </div>
+        <div class="field"><label>Valor (R$)</label><input type="number" id="gastoValor" step="0.01"></div>
+        <div class="field"><label>Forma de Pagamento</label><input type="text" id="gastoPgto"></div>
+        <div class="field"><label>Dia de Vencimento</label><input type="number" id="gastoVcto" min="1" max="31" placeholder="Ex: 10"></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="closeModal('modalGasto')">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveGasto()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
