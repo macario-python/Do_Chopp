@@ -2732,14 +2732,19 @@ function atualizarStatBarris() {
 
 // ─── TOGGLE SENHA ────────────────────────────────────────────────────────────
 function toggleSenha(inputId, svgId) {
-  const input = document.getElementById(inputId);
-  const btn   = document.getElementById(svgId + '_btn');
-  const show  = input.type === 'password';
-  input.type  = show ? 'text' : 'password';
-  if(btn) {
-    btn.textContent = show ? '🔓' : '🔒';
-    btn.style.color = show ? '#F5A623' : '#888';
-  }
+  try {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    const btn = document.getElementById(svgId + '_btn');
+    if (btn) {
+      btn.textContent = isPassword ? '🔓' : '🔒';
+      btn.style.color = isPassword ? '#F5A623' : '#888';
+    }
+    // Mantém foco no campo
+    input.focus();
+  } catch(e) { console.warn('toggleSenha erro:', e); }
 }
 
 // ─── LOGIN / LOGOUT ──────────────────────────────────────────────────────────
@@ -2799,6 +2804,16 @@ function doLogin() {
   document.getElementById('app').style.display = 'flex';
   renderDashboard();
   atualizarStatBarris();
+
+  // Carrega Supabase em background
+  setTimeout(async () => {
+    try {
+      if (window.sb) {
+        await carregarTodosDados();
+        ligarRealtime();
+      }
+    } catch(e) { console.warn('Modo offline:', e.message); }
+  }, 200);
 }
 
 function doLogout() {
@@ -2827,65 +2842,7 @@ try {
 // ══════════════════════════════════════════════════════════════
 // LOGIN — integrado com Supabase
 // ══════════════════════════════════════════════════════════════
-async function doLogin() {
-  const user = document.getElementById('loginUser').value.trim().toLowerCase();
-  const pass = document.getElementById('loginPass').value;
-  const err  = document.getElementById('loginErr');
-  const btn  = document.querySelector('.btn-login') || document.querySelector('[onclick="doLogin()"]');
 
-  // Valida local IMEDIATAMENTE (sem esperar Supabase)
-  const local = USERS[user];
-  if (!local || local.senha !== pass) {
-    err.style.display = 'block';
-    document.getElementById('loginPass').style.borderColor = '#E53935';
-    return;
-  }
-
-  // Login local OK — entra imediatamente
-  err.style.display = 'none';
-  document.getElementById('loginPass').style.borderColor = '#3A3A3A';
-  currentRole = local.role;
-
-  // Atualiza sidebar
-  document.getElementById('sidebarUser').textContent = user;
-  const badge = document.getElementById('sidebarRoleBadge');
-  if (currentRole === 'admin') {
-    badge.textContent = '👑 Admin';
-    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(245,166,35,.15);color:#F5A623';
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = '');
-  } else {
-    badge.textContent = '👤 Operador';
-    badge.style.cssText = 'font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:rgba(30,136,229,.15);color:#1E88E5';
-    document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
-  }
-
-  // Mostra o app AGORA com dados locais
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  renderDashboard();
-  atualizarStatBarris();
-
-  // Carrega Supabase em background (não bloqueia)
-  setTimeout(async () => {
-    try {
-      // Verifica se SDK carregou
-      if (typeof supabase === 'undefined' || !window.sb) {
-        showToast('⚠️ Modo offline — dados locais');
-        return;
-      }
-      await carregarTodosDados();
-      ligarRealtime();
-
-      // Sincroniza login com Supabase em background
-      sb.from('usuarios').select('id').eq('usuario', user).eq('senha_hash', pass).single()
-        .then(({ data }) => { if(data) sb.from('usuarios').update({ ultimo_acesso: new Date().toISOString() }).eq('id', data.id); });
-
-    } catch(e) {
-      console.warn('Supabase indisponível, usando dados locais:', e.message);
-      showToast('⚠️ Modo offline — dados locais');
-    }
-  }, 100);
-}
 
 // ══════════════════════════════════════════════════════════════
 // CARREGAR DADOS DO SUPABASE
