@@ -414,6 +414,81 @@ textarea { resize: vertical; min-height: 80px; }
 @media (max-width: 1200px) {
   .stats-grid { grid-template-columns: repeat(2,1fr); }
 }
+
+/* ── MOBILE RESPONSIVE ────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100%;
+    height: auto;
+    min-height: unset;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: auto;
+    z-index: 200;
+    flex-direction: row;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid #2A2A2A;
+  }
+  .sidebar-logo { padding: 10px 14px; border-bottom: none; border-right: 1px solid #2A2A2A; }
+  .sidebar-nav { display: none; }
+  .sidebar-footer { display: none; }
+  .sidebar.menu-open { height: 100vh; flex-direction: column; align-items: stretch; }
+  .sidebar.menu-open .sidebar-nav { display: block; }
+  .sidebar.menu-open .sidebar-footer { display: flex; }
+
+  /* Botão hamburguer */
+  #menuToggle {
+    display: flex !important;
+    background: none;
+    border: none;
+    color: var(--white);
+    font-size: 22px;
+    cursor: pointer;
+    padding: 10px 14px;
+    margin-left: auto;
+  }
+
+  .main {
+    margin-left: 0 !important;
+    padding-top: 58px;
+  }
+
+  .topbar {
+    left: 0;
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px;
+  }
+
+  .stat-value { font-size: 22px !important; }
+
+  .content { padding: 14px !important; }
+
+  .form-grid { grid-template-columns: 1fr !important; }
+  .form-grid .field.span2 { grid-column: span 1 !important; }
+
+  .modal { max-width: 100% !important; margin: 0 8px; max-height: 95vh; }
+
+  table { font-size: 12px; }
+  thead th { padding: 7px 8px; font-size: 9px; }
+  td { padding: 8px; }
+
+  .btn-sm { padding: 4px 8px; font-size: 11px; }
+
+  /* Oculta colunas menos importantes no mobile */
+  .hide-mobile { display: none !important; }
+
+  .tabs { flex-wrap: wrap; width: 100%; }
+  .tab { font-size: 12px; padding: 5px 12px; }
+}
+
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
@@ -497,7 +572,8 @@ textarea { resize: vertical; min-height: 80px; }
 <div id="app" style="display:none;width:100%;min-height:100vh;position:relative">
 <!-- SIDEBAR -->
 <aside class="sidebar">
-  <div class="sidebar-logo">
+  <button id="menuToggle" style="display:none" onclick="toggleMenu()">☰</button>
+<div class="sidebar-logo">
     <svg width="120" height="40" viewBox="0 0 120 40">
       <rect width="120" height="40" rx="4" fill="#0D0D0D"/>
       <!-- Beer mug icon simplified -->
@@ -2815,6 +2891,23 @@ document.addEventListener('DOMContentLoaded', function() {
   var el = document.getElementById('currentDate');
   if(el) el.textContent = new Date().toLocaleDateString('pt-BR');
 });
+
+function toggleMenu() {
+  var sidebar = document.querySelector('.sidebar');
+  sidebar.classList.toggle('menu-open');
+}
+
+// Fecha menu ao clicar em item do nav no mobile
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.nav-item').forEach(function(item) {
+    item.addEventListener('click', function() {
+      if(window.innerWidth <= 768) {
+        document.querySelector('.sidebar').classList.remove('menu-open');
+      }
+    });
+  });
+});
+
 </script>
 </body>
 </html>
