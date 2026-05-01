@@ -2799,3 +2799,22 @@ const USERS = {
   operador: { senha: 'op123',    role: 'operador', label: 'Operador' },
 };
 
+function doLogout() {
+  document.getElementById('loginUser').value = '';
+  document.getElementById('loginPass').value = '';
+  var errEl = document.getElementById('loginErr');
+  if(errEl) errEl.style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.querySelectorAll('.admin-only').forEach(function(el){ el.style.display = ''; });
+  selectRole('admin');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', function() {
+  var el = document.getElementById('currentDate');
+  if(el) el.textContent = new Date().toLocaleDateString('pt-BR');
+});
+</script>
+</body>
+</html>
